@@ -1,0 +1,33 @@
+{
+  "name": "space-explorer-3x",
+  "version": "0.0.0",
+  "type": "module",
+  "description": "A contemplative space exploration game",
+  "author": "Matthieu",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "format": "prettier --write \"src/**/*.{ts,tsx,json,css}\"",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "idb": "^8.0.2",
+    "pixi.js": "^8.6.8",
+    "seedrandom": "^3.0.5",
+    "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "@types/seedrandom": "^3.0.8",
+    "@typescript-eslint/eslint-plugin": "^8.20.0",
+    "@typescript-eslint/parser": "^8.20.0",
+    "eslint": "^9.18.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.11",
+    "vitest": "^3.0.8"
+  }
+}
