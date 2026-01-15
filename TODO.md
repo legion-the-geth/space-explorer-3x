@@ -9,13 +9,12 @@
 
 > **Voir détails complets dans** : [FEAT_001.md](./SPECS/FEAT_001.md)
 
-- [ ] **[FEAT]** Système de découverte et fog of war ~1d #gameplay @fullstack [FEAT-001]
-  Implémentation du système d'états (UNKNOWN/VISIBLE/REACHABLE/VISITED/SCANNED) et génération dynamique basée sur la position du joueur.
-  - [ ] Store Zustand `useDiscoveryStore` (états, position joueur, lignes de saut)
-  - [ ] Génération dynamique dans rayon 200 AL autour du joueur
-  - [ ] Icône du joueur (triangle blanc) sur la carte galaxie
-  - [ ] Action "Scan System" (révèle lignes de saut, coût fixe)
-  - [ ] Action "Jump to System" (téléportation, coût fixe, mise à jour visibilité)
+- [ ] **[FEAT]** Action "Jump to System" ~2h #gameplay @fullstack [FEAT-001-5]
+  Compléter FEAT-001 avec la mécanique de saut entre systèmes.
+  - [ ] Bouton "Jump to System" dans vue détail pour systèmes REACHABLE
+  - [ ] Téléportation + mise à jour état (REACHABLE → VISITED)
+  - [ ] Mise à jour zone de visibilité (nouveaux systèmes VISIBLE)
+  - [ ] Déplacement icône joueur sur la carte
 
 ## 📋 Backlog MVP (Par ordre de priorité)
 
@@ -30,12 +29,12 @@
 
 ### Phase 2 : Interface de Navigation 2D
 
-- [ ] **[FEAT]** Affichage de la carte galactique ~4h #ui @frontend
+- [+] **[FEAT]** Affichage de la carte galactique ~4h #ui @frontend
   Rendu visuel des systèmes stellaires sur la carte 2D.
-  - [ ] Sprites/shapes pour les systèmes
+  - [x] Sprites/shapes pour les systèmes
   - [ ] Affichage des connexions (lignes de saut)
-  - [ ] Indication visuelle (découvert/non découvert)
-  - [ ] Labels et infos au survol
+  - [+] Indication visuelle (découvert/non découvert)
+  - [+] Labels et infos au survol
 
 ### Phase 3 : Système de Scan
 - [ ] **[FEAT]** Scan de système stellaire ~4h #gameplay @game
@@ -142,6 +141,10 @@
 
 ## ✅ Terminé
 
+- [x] **[FEAT]** Système de découverte et fog of war (steps 1-4) ~1d #gameplay @fullstack [FEAT-001]
+  **Terminé le** : 2026-01-15
+  Implémentation du système d'états (UNKNOWN/VISIBLE/REACHABLE/VISITED/SCANNED) et génération dynamique. Scan system révèle planètes + jump lines avec distribution pondérée (0-4) et protection anti-softlock. UI avec status badge, bouton scan conditionnel, affichage jump lines dans panel.
+
 - [x] **[FEAT]** Système de génération procédurale avec seed ~4h #procgen @game [DEC-002]
   **Terminé le** : 2026-01-14
   Génération déterministe d'étoiles avec propriétés réalistes (classes spectrales O-M, températures, masses, couleurs). Système de nommage SEC-A7-M142. Distribution spatiale grille+jitter. Échelle 1 unité = 0.1 AL.
@@ -192,6 +195,7 @@
 
 ### Statuts
 - `- [ ]` : À faire
+- `- [+]` : En cours
 - `- [x]` : Terminé
 - **Gras** : Haute priorité ou bloquant
 

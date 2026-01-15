@@ -1,8 +1,26 @@
 # FEAT-001 : Système de Découverte et d'Exploration
 
-> **Version** : 1.0
-> **Date** : 2026-01-14
-> **Status** : ✅ Validé, prêt pour implémentation
+> **Version** : 1.1
+> **Date** : 2026-01-15
+> **Status** : 🟡 En cours (Steps 1-4 complétés, Step 5 restant)
+
+---
+
+## 📝 Changelog
+
+### 2026-01-15 - Steps 1-4 Implémentés
+- ✅ **Step 1**: Discovery Store (Zustand vanilla)
+- ✅ **Step 2**: Zone de visibilité (50 AL au lieu de 200 AL)
+- ✅ **Step 3**: Rendu visuel + icône joueur
+- ✅ **Step 4**: Scan System
+  - Génération procédurale de planètes (0-8, types variés)
+  - Jump lines avec distribution pondérée [0-4] : 0:10%, 1:15%, 2:25%, 3:35%, 4:15%
+  - Protection anti-softlock (garantit min 1 ligne si système isolé)
+  - UI améliorée : bouton Scan centré, bouton retour en bas gauche
+  - Status badge (Scanned vert / Visited orange)
+  - Affichage jump lines dans panel de détails
+  - Masquage bouton Scan après usage
+- ⏳ **Step 5**: Jump to System (à implémenter)
 
 ---
 
@@ -41,35 +59,47 @@ Notes:
 
 ### 1. Démarrage du Jeu
 
-**Position initiale** : `(0, 0)`
+**Position initiale** : `(0, 0)` (système forcé, sans jitter)
 - Le joueur spawn au point d'origine
 - Le système `(0, 0)` est automatiquement en état **VISITED**
-- Tous les systèmes dans un rayon de **200 AL** (2000 unités) deviennent **VISIBLE**
-- Affichage : points gris sans informations
+- Tous les systèmes dans un rayon de **50 AL** (500 unités) deviennent **VISIBLE**
+- Affichage : points gris avec halo subtil, sans informations
 - Message au joueur : _"Scan your current system to reveal jump lines"_
 
 ### 2. Scanner un Système
 
 **Conditions** :
 - Le joueur doit être physiquement dans le système (pas de scan à distance pour MVP)
-- Le système doit être en état **VISITED** ou **REACHABLE**
+- Le système doit être en état **VISITED**
 
 **Coût** :
-- Fixe pour MVP (ex: 10 unités de fuel)
+- Gratuit pour MVP (à implémenter : coût fixe en fuel)
 - Évolution future : coût variable selon taille/complexité du système
 
-**Action** : Bouton _"Scan System"_ dans la vue détail
+**Action** : Bouton _"Scan System"_ dans la vue détail (masqué après scan)
 
 **Résultats** :
 1. Le système actuel passe en état **SCANNED**
 2. Révélation de tous les objets du système :
-   - Planètes
-   - Lunes
-   - Astéroïdes
-   - Objets bonus (non visibles avant scan)
-3. Révélation des **lignes de saut** disponibles depuis ce système
+   - Planètes (0-8, génération procédurale)
+   - Types : Rocky, Gas Giant, Ice, Desert, Ocean, Lava
+   - Propriétés : distance (AU), rayon, masse
+3. Révélation des **lignes de saut** disponibles depuis ce système :
+   - Distribution pondérée : 0-4 lignes
+     - 0 ligne : 10%
+     - 1 ligne : 15%
+     - 2 lignes : 25%
+     - 3 lignes : 35%
+     - 4 lignes : 15%
+   - Protection anti-softlock : min 1 ligne si système isolé
+   - Distance max : 20 AL (200 unités)
+   - Probabilité décroissante avec distance : P = 1 / (1 + distance/50)
+   - Limite : 4 connexions max par système
 4. Les systèmes accessibles passent en état **REACHABLE** (colorés sur la carte)
-5. Affichage du coût en ressources pour chaque saut possible
+5. UI mise à jour :
+   - Status badge "Scanned" (vert)
+   - Liste des planètes dans panel
+   - Liste des jump lines (noms systèmes connectés)
 
 ### 3. Effectuer un Saut (Jump)
 
@@ -88,21 +118,24 @@ Notes:
 2. Le système cible passe en état **VISITED**
 3. Affichage des informations de base :
    - Propriétés de l'étoile (type, température, masse, rayon)
+   - Status badge "Visited" (orange)
    - Nombre d'objets garantis (ex: "3 planets detected")
 4. Mise à jour de la zone de visibilité :
-   - Nouveaux systèmes dans le rayon de 200 AL deviennent **VISIBLE**
+   - Nouveaux systèmes dans le rayon de 50 AL deviennent **VISIBLE**
    - Les systèmes **SCANNED** restent visibles partout (hors fog of war)
 5. Les lignes de saut depuis/vers les systèmes **SCANNED** restent affichées
+6. Icône joueur (triangle blanc) se déplace sur le nouveau système
 
 ### 4. Zone de Visibilité
 
-**Rayon** : 200 années-lumière (2000 unités)
+**Rayon** : 50 années-lumière (500 unités)
 
 **Règles** :
 - Centrée sur la position actuelle du joueur
 - Se met à jour à chaque saut
-- Les systèmes **VISIBLE** (gris) apparaissent/disparaissent selon la position
+- Les systèmes **VISIBLE** (gris avec halo) apparaissent/disparaissent selon la position
 - Les systèmes **SCANNED** restent visibles en permanence, même hors zone
+- Tous les systèmes visibles ont un halo (gris pour VISIBLE, couleur pour autres états)
 
 **Évolution future** :
 - Amélioration du vaisseau → augmentation du rayon de visibilité
@@ -112,21 +145,26 @@ Notes:
 
 ### États visuels sur la carte galaxie
 
-| État       | Couleur           | Glow | Label        | Au clic                          |
-|------------|-------------------|------|--------------|----------------------------------|
-| UNKNOWN    | Invisible         | Non  | N/A          | Impossible                       |
-| VISIBLE    | Gris (#888888)    | Non  | "???"        | _"Unknown System"_               |
-| REACHABLE  | Couleur de l'étoile | Oui | Type (M/K/G) | Vue détail + bouton _"Jump"_    |
-| VISITED    | Couleur de l'étoile | Oui | Nom système  | Vue détail + bouton _"Scan"_    |
-| SCANNED    | Couleur de l'étoile | Oui+ | Nom système  | Vue détail complète              |
+| État       | Couleur           | Glow (alpha)     | Label        | Au clic                          | Status badge |
+|------------|-------------------|------------------|--------------|----------------------------------|--------------|
+| UNKNOWN    | Invisible         | Non              | N/A          | Impossible                       | N/A          |
+| VISIBLE    | Gris (#888888)    | Oui (0.3)        | "???"        | _"System not accessible yet"_    | N/A          |
+| REACHABLE  | Couleur étoile    | Oui (0.3)        | Type (M/K/G) | Vue détail + bouton _"Jump"_    | N/A          |
+| VISITED    | Couleur étoile    | Oui (0.3)        | Nom système  | Vue détail + bouton _"Scan"_    | Orange       |
+| SCANNED    | Couleur étoile    | Oui+ (0.5)       | Nom système  | Vue détail complète              | Vert         |
+
+**Notes** :
+- Tous les systèmes visibles ont un halo (glow), même les VISIBLE (gris)
+- Le glow est plus intense pour SCANNED (alpha 0.5 vs 0.3)
+- Hover effect : scale 1.5x sur star + glow
 
 ### Lignes de saut
 
 **Affichage** :
 - Uniquement entre systèmes **SCANNED** et systèmes **REACHABLE** depuis eux
-- Couleur : Dorée/Cyan (#FFD700 ou #00CED1)
-- Épaisseur : Constante pour MVP (2-3 pixels)
-- Style : Ligne pleine, légèrement transparente (alpha: 0.6)
+- Couleur : Cyan (#00aaff)
+- Épaisseur : 1 pixel
+- Style : Ligne pleine, légèrement transparente (alpha: 0.5)
 
 **Bidirectionnalité** :
 - Si A est **SCANNED** et révèle B, alors A↔B est créé
@@ -215,13 +253,16 @@ Les données suivantes doivent être sauvegardées :
 
 ```
 1. Spawn à (0, 0)
-   └─> Système (0,0) = VISITED
-   └─> ~50 systèmes autour = VISIBLE (gris)
+   └─> Système (0,0) = VISITED (forcé, sans jitter)
+   └─> ~20-30 systèmes autour = VISIBLE (gris avec halo)
 
 2. Scan du système (0, 0)
    └─> Système (0, 0) = SCANNED
-   └─> Révèle 3 lignes de saut : vers A, B, C
-   └─> A, B, C = REACHABLE (colorés)
+   └─> Révèle 0-8 planètes (ex: 4 planètes générées)
+   └─> Révèle 0-4 lignes de saut (distribution pondérée)
+   └─> Ex: 2 lignes créées vers A et B
+   └─> A, B = REACHABLE (colorés)
+   └─> Bouton Scan disparaît, status badge "Scanned" (vert)
 
 3. Jump vers A
    └─> Téléportation vers A

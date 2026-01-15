@@ -1,3 +1,5 @@
+import { Planet } from './Planet';
+
 /**
  * Represents a star system with basic properties
  */
@@ -6,6 +8,7 @@ export interface StarSystem {
   name: string;
   position: { x: number; y: number };
   star: StarData;
+  planets?: Planet[]; // Revealed after scanning
 }
 
 export interface StarData {

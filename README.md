@@ -149,6 +149,6 @@ TBD
 
 ---
 
-**Status** : 🟡 Phase de setup
-**Version** : 0.0.0 (pre-alpha)
-**Dernière mise à jour** : 2026-01-14
+**Status** : 🟢 MVP en développement (FEAT-001 ~90% complété)
+**Version** : 0.1.0 (alpha)
+**Dernière mise à jour** : 2026-01-15

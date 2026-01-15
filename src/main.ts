@@ -8,6 +8,7 @@ import { HUD } from '@ui/HUD';
 import { SystemDetailView } from '@ui/SystemDetailView';
 import { StarSystem } from '@game/StarSystem';
 import { UniverseGenerator } from '@game/generation/UniverseGenerator';
+import { PlanetGenerator } from '@game/generation/PlanetGenerator';
 import { discoveryStore, SystemDiscoveryState } from '@stores/useDiscoveryStore';
 import { VISIBILITY_RADIUS } from '@game/generation/constants';
 
@@ -99,8 +100,15 @@ async function init() {
 
   console.log(`🎮 Player spawned at system ${spawnSystem.name} (${spawnSystem.position.x.toFixed(0)}, ${spawnSystem.position.y.toFixed(0)})`);
 
+  // Container for jump lines (rendered behind stars)
+  const jumpLinesContainer = new Container();
+  camera.container.addChild(jumpLinesContainer);
+
   // Render star systems in galaxy view
-  const systemGraphics: Map<string, { graphic: Graphics; system: StarSystem }> = new Map();
+  const systemGraphics: Map<
+    string,
+    { container: Container; star: Graphics; glow: Graphics; system: StarSystem }
+  > = new Map();
 
   initialSystems.forEach((system) => {
     const starContainer = new Container();
@@ -182,20 +190,16 @@ async function init() {
     // Hover effect
     starContainer.on('pointerenter', () => {
       star.scale.set(1.5);
-      if (glow) {
-        glow.scale.set(1.5);
-      }
+      glow.scale.set(1.5);
     });
 
     starContainer.on('pointerleave', () => {
       star.scale.set(1);
-      if (glow) {
-        glow.scale.set(1);
-      }
+      glow.scale.set(1);
     });
 
     camera.container.addChild(starContainer);
-    systemGraphics.set(system.id, { graphic: star, system });
+    systemGraphics.set(system.id, { container: starContainer, star, glow, system });
   });
 
   // Add player icon (triangle) on the current system
@@ -222,13 +226,109 @@ async function init() {
 
   // ========== SYSTEM VIEW SETUP ==========
 
+  // Declare renderJumpLines function (will be defined later)
+  let renderJumpLines: () => void;
+
   const systemDetailView = new SystemDetailView({
     screenWidth: app.screen.width,
     screenHeight: app.screen.height,
     onBackToGalaxy: () => {
       viewManager.showGalaxyView();
+      // Refresh jump lines when returning to galaxy view
+      renderJumpLines();
+    },
+    getSystemState: (systemId: string) => {
+      const { getSystemState } = discoveryStore.getState();
+      return getSystemState(systemId);
+    },
+    getConnectedSystemNames: (systemId: string) => {
+      const { jumpLines } = discoveryStore.getState();
+      const connectedSystemIds = jumpLines
+        .filter((line) => line.from === systemId || line.to === systemId)
+        .map((line) => (line.from === systemId ? line.to : line.from));
+
+      // Get system names
+      return connectedSystemIds
+        .map((id) => {
+          const system = initialSystems.find((s) => s.id === id);
+          return system ? system.name : id;
+        })
+        .sort(); // Sort alphabetically
+    },
+    onScanSystem: (systemId: string) => {
+      // Find the system being scanned
+      const system = initialSystems.find((s) => s.id === systemId);
+      if (!system) {
+        console.error(`System ${systemId} not found`);
+        return;
+      }
+
+      // Generate planets for this system
+      const planets = PlanetGenerator.generatePlanets(systemId);
+      system.planets = planets;
+
+      console.log(`🪐 Generated ${planets.length} planets for system ${system.name}`);
+
+      // Generate jump lines via discovery store
+      const { scanSystem } = discoveryStore.getState();
+      const availableSystems = initialSystems.map((s) => ({
+        id: s.id,
+        x: s.position.x,
+        y: s.position.y,
+      }));
+
+      scanSystem(systemId, system.position.x, system.position.y, availableSystems);
+
+      // Update jump lines rendering
+      renderJumpLines();
+
+      // Update star visual (SCANNED state = stronger glow)
+      updateStarVisual(systemId);
+
+      // Refresh system detail view to show planets
+      systemDetailView.showSystem(system);
     },
   });
+
+  // Function to render all jump lines
+  renderJumpLines = () => {
+    jumpLinesContainer.removeChildren();
+
+    const { jumpLines } = discoveryStore.getState();
+
+    jumpLines.forEach((line) => {
+      const fromSystem = initialSystems.find((s) => s.id === line.from);
+      const toSystem = initialSystems.find((s) => s.id === line.to);
+
+      if (!fromSystem || !toSystem) return;
+
+      const lineGraphic = new Graphics();
+      lineGraphic
+        .moveTo(fromSystem.position.x, fromSystem.position.y)
+        .lineTo(toSystem.position.x, toSystem.position.y)
+        .stroke({ width: 1, color: 0x00aaff, alpha: 0.5 });
+
+      jumpLinesContainer.addChild(lineGraphic);
+    });
+  };
+
+  // Function to update star visual after state change (e.g., after scan)
+  const updateStarVisual = (systemId: string) => {
+    const systemGraphic = systemGraphics.get(systemId);
+    if (!systemGraphic) return;
+
+    const { getSystemState } = discoveryStore.getState();
+    const discoveryState = getSystemState(systemId);
+
+    // Update glow based on new state
+    if (discoveryState === SystemDiscoveryState.SCANNED) {
+      const glowSize =
+        systemGraphic.system.star.type === 'O' || systemGraphic.system.star.type === 'B' ? 10 : 8;
+      systemGraphic.glow.clear();
+      systemGraphic.glow.circle(0, 0, glowSize);
+      systemGraphic.glow.fill({ color: systemGraphic.system.star.color, alpha: 0.5 }); // Stronger glow for SCANNED
+    }
+  };
 
   viewManager.system.addChild(systemDetailView.displayObject);
 
