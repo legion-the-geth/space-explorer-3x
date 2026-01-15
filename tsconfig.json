@@ -30,7 +30,8 @@
       "@core/*": ["src/core/*"],
       "@game/*": ["src/game/*"],
       "@ui/*": ["src/ui/*"],
-      "@utils/*": ["src/utils/*"]
+      "@utils/*": ["src/utils/*"],
+      "@stores/*": ["src/stores/*"]
     }
   },
   "include": ["src"]

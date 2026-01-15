@@ -44,6 +44,12 @@ export const MIN_STAR_DISTANCE = 20;
  */
 export const STAR_SPAWN_PROBABILITY = 0.8;
 
+/**
+ * Visibility radius around the player (= 50 AL)
+ * Systems within this radius become VISIBLE (gray dots)
+ */
+export const VISIBILITY_RADIUS = 500;
+
 // ========== STAR DISTRIBUTIONS ==========
 
 /**

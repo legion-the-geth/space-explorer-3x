@@ -98,6 +98,83 @@ export class UniverseGenerator {
   }
 
   /**
+   * Generate spawn system at exact coordinates (no jitter, guaranteed spawn)
+   * Used for player starting system at (0, 0)
+   */
+  public generateSpawnSystem(x: number, y: number): StarSystem {
+    const systemSeed = this.getSystemSeed(x, y);
+
+    // Generate star (no spawn probability check, always spawn)
+    const star = StarGenerator.generate(systemSeed);
+
+    // Generate system ID and name
+    const systemId = this.generateSystemId(x, y);
+    const systemName = this.generateSystemName(x, y, star.type);
+
+    return {
+      id: systemId,
+      name: systemName,
+      position: { x, y },
+      star,
+    };
+  }
+
+  /**
+   * Generate systems within a circular radius (for fog of war)
+   */
+  public generateSystemsInRadius(
+    centerX: number,
+    centerY: number,
+    radius: number
+  ): StarSystem[] {
+    const systems: StarSystem[] = [];
+
+    // Snap to grid (bounding box)
+    const startX = Math.floor((centerX - radius) / STAR_GRID_SPACING) * STAR_GRID_SPACING;
+    const endX = Math.ceil((centerX + radius) / STAR_GRID_SPACING) * STAR_GRID_SPACING;
+    const startY = Math.floor((centerY - radius) / STAR_GRID_SPACING) * STAR_GRID_SPACING;
+    const endY = Math.ceil((centerY + radius) / STAR_GRID_SPACING) * STAR_GRID_SPACING;
+
+    const radiusSquared = radius * radius;
+
+    // Generate systems on grid with jitter
+    for (let gridX = startX; gridX <= endX; gridX += STAR_GRID_SPACING) {
+      for (let gridY = startY; gridY <= endY; gridY += STAR_GRID_SPACING) {
+        const systemSeed = this.getSystemSeed(gridX, gridY);
+        const rng = new SeededRandom(systemSeed);
+
+        // Check spawn probability
+        if (rng.random() > STAR_SPAWN_PROBABILITY) {
+          continue;
+        }
+
+        // Apply jitter to position
+        const jitterX = rng.range(-STAR_JITTER, STAR_JITTER);
+        const jitterY = rng.range(-STAR_JITTER, STAR_JITTER);
+        const x = gridX + jitterX;
+        const y = gridY + jitterY;
+
+        // Check if system is within radius
+        const dx = x - centerX;
+        const dy = y - centerY;
+        const distanceSquared = dx * dx + dy * dy;
+
+        if (distanceSquared > radiusSquared) {
+          continue; // Outside radius
+        }
+
+        // Generate system
+        const system = this.generateSystemAt(x, y);
+        if (system) {
+          systems.push(system);
+        }
+      }
+    }
+
+    return systems;
+  }
+
+  /**
    * Get sector ID from coordinates
    * Format: A0, B5, AA12, etc.
    */

@@ -9,6 +9,7 @@ export default defineConfig({
       '@game': path.resolve(__dirname, './src/game'),
       '@ui': path.resolve(__dirname, './src/ui'),
       '@utils': path.resolve(__dirname, './src/utils'),
+      '@stores': path.resolve(__dirname, './src/stores'),
     },
   },
   server: {
