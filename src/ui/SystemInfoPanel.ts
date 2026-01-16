@@ -4,23 +4,34 @@ import { SystemDiscoveryState } from '@stores/useDiscoveryStore';
 import { THEME } from '@ui/theme';
 import { Panel } from '@ui/components/Panel';
 
+export interface ConnectedSystemInfo {
+  id: string;
+  name: string;
+}
+
 /**
  * Panel showing detailed information about a star system
  */
 export class SystemInfoPanel extends Panel {
-  constructor(system: StarSystem, systemState: SystemDiscoveryState, connectedSystems: string[]) {
+  constructor(
+    system: StarSystem,
+    systemState: SystemDiscoveryState,
+    connectedSystems: ConnectedSystemInfo[],
+    onSystemClick?: (systemId: string) => void
+  ) {
     super({
       width: 350,
       height: 400,
     });
 
-    this.renderContent(system, systemState, connectedSystems);
+    this.renderContent(system, systemState, connectedSystems, onSystemClick);
   }
 
   private renderContent(
     system: StarSystem,
     systemState: SystemDiscoveryState,
-    connectedSystems: string[]
+    connectedSystems: ConnectedSystemInfo[],
+    onSystemClick?: (systemId: string) => void
   ): void {
     // Title
     const title = new Text({
@@ -182,18 +193,37 @@ export class SystemInfoPanel extends Panel {
 
       yOffset += 30;
 
-      connectedSystems.slice(0, 5).forEach((systemName) => {
+      connectedSystems.slice(0, 5).forEach((sysInfo) => {
         const jumpText = new Text({
-          text: `→ ${systemName}`,
+          text: `→ ${sysInfo.name}`,
           style: {
             fontFamily: THEME.typography.fontFamily,
             fontSize: THEME.typography.size.small,
             fill: THEME.colors.textSecondary,
+            // Underline effect simulated by color change on hover (handled below)
           },
         });
+        
         jumpText.position.set(40, yOffset);
+        
+        // Make interactive
+        if (onSystemClick) {
+            jumpText.eventMode = 'static';
+            jumpText.cursor = 'pointer';
+            
+            jumpText.on('pointerdown', () => onSystemClick(sysInfo.id));
+            
+            jumpText.on('pointerenter', () => {
+                jumpText.style.fill = THEME.colors.textAccent;
+            });
+            
+            jumpText.on('pointerleave', () => {
+                jumpText.style.fill = THEME.colors.textSecondary;
+            });
+        }
+        
         this.addChild(jumpText);
-        yOffset += 20;
+        yOffset += 25; // Slightly increased spacing for touch targets
       });
 
       if (connectedSystems.length > 5) {

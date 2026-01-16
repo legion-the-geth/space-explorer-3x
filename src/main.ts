@@ -270,13 +270,20 @@ async function init() {
         .filter((line) => line.from === systemId || line.to === systemId)
         .map((line) => (line.from === systemId ? line.to : line.from));
 
-      // Get system names
+      // Get system names and ids
       return connectedSystemIds
         .map((id) => {
           const system = allSystems.find((s) => s.id === id);
-          return system ? system.name : id;
+          return { id, name: system ? system.name : id };
         })
-        .sort(); // Sort alphabetically
+        .sort((a, b) => a.name.localeCompare(b.name));
+    },
+    onShowSystemDetails: (systemId: string) => {
+      const system = allSystems.find((s) => s.id === systemId);
+      if (system) {
+        console.log(`🔗 Navigating to connected system: ${system.name}`);
+        systemDetailView.showSystem(system);
+      }
     },
     isSystemJumpable: (systemId: string) => {
       const { isSystemJumpable } = discoveryStore.getState();
@@ -352,9 +359,10 @@ async function init() {
       // Update visuals for everyone
       allSystems.forEach((s) => updateStarVisual(s.id));
 
-      // Return to galaxy view
-      viewManager.showGalaxyView();
+      // Refresh jump lines (for background/next galaxy view)
       renderJumpLines();
+      
+      // NOTE: We stay in System View for better UX
     },
   });
 

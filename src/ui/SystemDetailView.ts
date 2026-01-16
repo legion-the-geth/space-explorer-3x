@@ -1,7 +1,7 @@
 import { Container } from 'pixi.js';
 import { StarSystem } from '@game/StarSystem';
 import { SystemDiscoveryState } from '@stores/useDiscoveryStore';
-import { SystemInfoPanel } from '@ui/SystemInfoPanel';
+import { ConnectedSystemInfo, SystemInfoPanel } from '@ui/SystemInfoPanel';
 import { SystemVisualizer } from '@ui/SystemVisualizer';
 import { Button } from '@ui/components/Button';
 import { THEME } from '@ui/theme';
@@ -13,8 +13,9 @@ export interface SystemDetailViewConfig {
   onBackToGalaxy: () => void;
   onScanSystem: (systemId: string) => void;
   onJumpToSystem: (systemId: string) => void;
+  onShowSystemDetails: (systemId: string) => void;
   getSystemState: (systemId: string) => SystemDiscoveryState;
-  getConnectedSystemNames: (systemId: string) => string[];
+  getConnectedSystemNames: (systemId: string) => ConnectedSystemInfo[];
   isSystemJumpable: (systemId: string) => boolean;
 }
 
@@ -30,8 +31,9 @@ export class SystemDetailView {
   private onBackToGalaxy: () => void;
   private onScanSystem: (systemId: string) => void;
   private onJumpToSystem: (systemId: string) => void;
+  private onShowSystemDetails: (systemId: string) => void;
   private getSystemState: (systemId: string) => SystemDiscoveryState;
-  private getConnectedSystemNames: (systemId: string) => string[];
+  private getConnectedSystemNames: (systemId: string) => ConnectedSystemInfo[];
   private isSystemJumpable: (systemId: string) => boolean;
 
   private currentSystem?: StarSystem;
@@ -44,6 +46,7 @@ export class SystemDetailView {
     this.onBackToGalaxy = config.onBackToGalaxy;
     this.onScanSystem = config.onScanSystem;
     this.onJumpToSystem = config.onJumpToSystem;
+    this.onShowSystemDetails = config.onShowSystemDetails;
     this.getSystemState = config.getSystemState;
     this.getConnectedSystemNames = config.getConnectedSystemNames;
     this.isSystemJumpable = config.isSystemJumpable;
@@ -75,7 +78,12 @@ export class SystemDetailView {
     const connectedSystems = this.getConnectedSystemNames(system.id);
 
     // Info Panel
-    const infoPanel = new SystemInfoPanel(system, systemState, connectedSystems);
+    const infoPanel = new SystemInfoPanel(
+      system,
+      systemState,
+      connectedSystems,
+      (targetId) => this.onShowSystemDetails(targetId)
+    );
     infoPanel.position.set(this.screenWidth / 2 + 100, this.screenHeight / 2 - 200);
     this.container.addChild(infoPanel);
 
