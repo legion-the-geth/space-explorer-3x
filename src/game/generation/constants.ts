@@ -21,6 +21,12 @@ export const UNIT_TO_LIGHTYEAR = 0.1;
 export const SECTOR_SIZE = 3000;
 
 /**
+ * Universe dimensions (in map units)
+ */
+export const GALAXY_WIDTH = 100000; // 10,000 AL
+export const GALAXY_HEIGHT = 100000; // 10,000 AL
+
+/**
  * Star generation grid spacing (= 10 AL)
  * Stars are placed on a grid with this spacing, then jittered
  */

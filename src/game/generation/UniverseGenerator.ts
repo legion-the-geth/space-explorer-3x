@@ -1,12 +1,12 @@
-import { SeededRandom } from './SeededRandom';
-import { StarGenerator } from './StarGenerator';
-import { StarSystem } from '../StarSystem';
+import { SeededRandom } from '@game/generation/SeededRandom';
+import { StarGenerator } from '@game/generation/StarGenerator';
+import { StarSystem } from '@game/StarSystem';
 import {
   SECTOR_SIZE,
   STAR_GRID_SPACING,
   STAR_JITTER,
   STAR_SPAWN_PROBABILITY,
-} from './constants';
+} from '@game/generation/constants';
 
 /**
  * Main universe generator
@@ -25,7 +25,8 @@ export class UniverseGenerator {
    */
   public generateSystemAt(x: number, y: number): StarSystem | null {
     const systemSeed = this.getSystemSeed(x, y);
-    const rng = new SeededRandom(systemSeed);
+    // For future use with systemSeed
+    // const rng = new SeededRandom(systemSeed);
 
     // Check if a system should spawn here (based on grid position)
     const gridX = Math.round(x / STAR_GRID_SPACING) * STAR_GRID_SPACING;

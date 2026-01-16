@@ -1,5 +1,6 @@
 import { Graphics } from 'pixi.js';
 import { Camera } from '@core/Camera';
+import { THEME } from '@ui/theme';
 
 export interface GridConfig {
   screenWidth: number;
@@ -59,7 +60,7 @@ export class Grid {
       const isAxis = x === 0;
 
       // Choose style based on whether it's an axis
-      const strokeColor = isAxis ? 0xffffff : 0xededed;
+      const strokeColor = isAxis ? THEME.colors.gridAxis : THEME.colors.gridLine;
       const strokeWidth = isAxis ? 2 / zoom : tier.lineWidth / zoom;
       const strokeAlpha = isAxis ? 0.6 : tier.alpha;
 
@@ -78,7 +79,7 @@ export class Grid {
       const isAxis = y === 0;
 
       // Choose style based on whether it's an axis
-      const strokeColor = isAxis ? 0xffffff : 0xededed;
+      const strokeColor = isAxis ? THEME.colors.gridAxis : THEME.colors.gridLine;
       const strokeWidth = isAxis ? 2 / zoom : tier.lineWidth / zoom;
       const strokeAlpha = isAxis ? 0.6 : tier.alpha;
 

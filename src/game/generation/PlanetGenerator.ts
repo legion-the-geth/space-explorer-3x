@@ -1,5 +1,5 @@
-import { SeededRandom } from './SeededRandom';
-import { Planet, PlanetType } from '../Planet';
+import { SeededRandom } from '@game/generation/SeededRandom';
+import { Planet, PlanetType } from '@game/Planet';
 
 /**
  * Planet generator for star systems
@@ -26,7 +26,7 @@ export class PlanetGenerator {
   }
 
   private static generatePlanet(
-    systemSeed: string,
+    _systemSeed: string,
     index: number,
     rng: SeededRandom
   ): Planet {

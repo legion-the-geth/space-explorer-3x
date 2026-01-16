@@ -38,8 +38,8 @@ export class SeededRandom {
    * @returns Selected key based on weighted probability
    */
   public weightedChoice<T extends string>(weights: Record<T, number>): T {
-    const total = Object.values(weights).reduce((sum, w) => sum + (w as number), 0);
-    let random = this.random() * total;
+    const total = Object.values(weights).reduce((sum: number, w) => sum + (w as number), 0);
+    let random = this.random() * (total as number);
 
     for (const [key, weight] of Object.entries(weights)) {
       random -= weight as number;

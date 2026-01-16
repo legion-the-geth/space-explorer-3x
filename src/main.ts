@@ -70,7 +70,7 @@ async function init() {
   const spawnY = 0;
 
   // Initialize discovery store
-  const { initializePlayer, setVisibleSystems, updateSystemState, setPlayerPosition } = discoveryStore.getState();
+  const { initializePlayer, setVisibleSystems, setPlayerPosition } = discoveryStore.getState();
 
   // Generate spawn system at EXACT (0, 0) coordinates
   const spawnSystem = universeGenerator.generateSpawnSystem(spawnX, spawnY);
@@ -368,7 +368,7 @@ async function init() {
   });
 
   console.log('🌌 Space Explorer 3X initialized');
-  console.log('📦 PixiJS version:', app.version);
+  console.log('🚀 Space Explorer 3X - Ready');
   console.log('🎮 Controls:');
   console.log('  - Mouse Wheel: Zoom in/out (Galaxy view)');
   console.log('  - Middle Mouse / Space + Drag: Pan (Galaxy view)');

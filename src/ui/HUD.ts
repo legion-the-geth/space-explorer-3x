@@ -1,5 +1,7 @@
-import { Container, Text, Graphics } from 'pixi.js';
+import { Container, Text } from 'pixi.js';
 import { Camera } from '@core/Camera';
+import { THEME } from '@ui/theme';
+import { Panel } from '@ui/components/Panel';
 
 export interface HUDConfig {
   screenWidth: number;
@@ -19,7 +21,7 @@ export class HUD {
   private coordsText: Text;
   private zoomText: Text;
   private controlsText: Text;
-  private background: Graphics;
+  private background: Panel;
 
   constructor(config: HUDConfig) {
     this.container = new Container();
@@ -28,9 +30,12 @@ export class HUD {
     this.screenHeight = config.screenHeight;
 
     // Create background panel
-    this.background = new Graphics();
-    this.background.rect(0, 0, 280, 100);
-    this.background.fill({ color: 0x0a0e27, alpha: 0.85 });
+    this.background = new Panel({
+      width: 280,
+      height: 100,
+      backgroundColor: THEME.colors.background,
+      backgroundAlpha: 0.85
+    });
     this.background.position.set(10, 10);
     this.container.addChild(this.background);
 
@@ -38,9 +43,9 @@ export class HUD {
     this.coordsText = new Text({
       text: 'Position: (0, 0)',
       style: {
-        fontFamily: 'Courier New, monospace',
-        fontSize: 14,
-        fill: 0xe0e0e0,
+        fontFamily: THEME.typography.fontFamily,
+        fontSize: THEME.typography.size.normal,
+        fill: THEME.colors.textPrimary,
       },
     });
     this.coordsText.position.set(20, 20);
@@ -50,9 +55,9 @@ export class HUD {
     this.zoomText = new Text({
       text: 'Zoom: 1.00x',
       style: {
-        fontFamily: 'Courier New, monospace',
-        fontSize: 14,
-        fill: 0xe0e0e0,
+        fontFamily: THEME.typography.fontFamily,
+        fontSize: THEME.typography.size.normal,
+        fill: THEME.colors.textPrimary,
       },
     });
     this.zoomText.position.set(20, 40);
@@ -62,9 +67,9 @@ export class HUD {
     this.controlsText = new Text({
       text: 'Controls: Wheel=Zoom | MMB/Space+Drag=Pan',
       style: {
-        fontFamily: 'Courier New, monospace',
-        fontSize: 11,
-        fill: 0x888888,
+        fontFamily: THEME.typography.fontFamily,
+        fontSize: THEME.typography.size.tiny,
+        fill: THEME.colors.textMuted,
       },
     });
     this.controlsText.position.set(20, 70);

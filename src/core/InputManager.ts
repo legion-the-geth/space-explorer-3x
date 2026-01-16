@@ -1,4 +1,4 @@
-import { Camera } from './Camera';
+import { Camera } from '@core/Camera';
 
 export interface InputManagerConfig {
   canvas: HTMLCanvasElement;

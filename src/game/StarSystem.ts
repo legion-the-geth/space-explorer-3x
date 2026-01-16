@@ -1,4 +1,4 @@
-import { Planet } from './Planet';
+import { Planet } from '@game/Planet';
 
 /**
  * Represents a star system with basic properties
@@ -58,13 +58,13 @@ export enum StarType {
 export function createTestStarSystem(id: string, x: number, y: number, color: number): StarSystem {
   // Map color to star type (temporary)
   const starTypes: Record<number, { type: StarType; temp: number; name: string }> = {
-    0xff3b3b: { type: StarType.RedGiant, temp: 3500, name: 'Betelgeuse-like' },
-    0xffeb3b: { type: StarType.MainSequence, temp: 5778, name: 'Sol-like' },
-    0x3bffff: { type: StarType.BlueGiant, temp: 10000, name: 'Rigel-like' },
-    0x3bff3b: { type: StarType.MainSequence, temp: 5500, name: 'Yellow Star' },
-    0xff3bff: { type: StarType.WhiteDwarf, temp: 7500, name: 'Sirius B-like' },
-    0xffa500: { type: StarType.MainSequence, temp: 5000, name: 'Orange Dwarf' },
-    0x9370db: { type: StarType.RedDwarf, temp: 3000, name: 'Proxima-like' },
+    0xff3b3b: { type: StarType.M, temp: 3500, name: 'Betelgeuse-like' },
+    0xffeb3b: { type: StarType.G, temp: 5778, name: 'Sol-like' },
+    0x3bffff: { type: StarType.O, temp: 10000, name: 'Rigel-like' },
+    0x3bff3b: { type: StarType.G, temp: 5500, name: 'Yellow Star' },
+    0xff3bff: { type: StarType.A, temp: 7500, name: 'Sirius B-like' },
+    0xffa500: { type: StarType.K, temp: 5000, name: 'Orange Dwarf' },
+    0x9370db: { type: StarType.M, temp: 3000, name: 'Proxima-like' },
   };
 
   const starInfo = starTypes[color] ?? starTypes[0xffeb3b]!;

@@ -86,6 +86,9 @@
 - [ ] **[UI]** HUD basique (ressources, position) ~2h #ui @frontend
   Affichage permanent des infos importantes (ressources, système actuel).
 
+- [ ] **[UI]** Ajouter une graduation sur la grille 
+  Sur les cases autour de la position du jouer, afficher une règle graduée jusqu'à 10 AL.
+
 - [ ] **[DOCS]** Documentation utilisateur basique ~2h #docs
   Guide de prise en main et explication des mécaniques.
 

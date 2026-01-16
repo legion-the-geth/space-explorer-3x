@@ -1,12 +1,12 @@
-import { SeededRandom } from './SeededRandom';
+import { SeededRandom } from '@game/generation/SeededRandom';
+import { StarData, StarType } from '@game/StarSystem';
 import {
-  STAR_TYPE_DISTRIBUTION,
-  STAR_TEMPERATURE_RANGES,
   STAR_MASS_RANGES,
+  STAR_TEMPERATURE_RANGES,
+  STAR_TYPE_DISTRIBUTION,
   STAR_TYPE_NAMES,
   temperatureToColor,
-} from './constants';
-import { StarData, StarType } from '../StarSystem';
+} from '@game/generation/constants';
 
 /**
  * Generates stars with realistic astronomical properties

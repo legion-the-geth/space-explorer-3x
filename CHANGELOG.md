@@ -4,7 +4,29 @@ Tous les changements notables de ce projet sont documentés dans ce fichier.
 
 ---
 
-## [Unreleased]
+## [2026-01-16] - Refonte de l'Interface et Nettoyage Technique
+
+### Added
+- **Système de Thème centralisé** (`src/ui/theme.ts`) : Unification des couleurs, polices et espacements.
+- **Composants UI réutilisables** (`src/ui/components/`) :
+  - `Button.ts` : Gestion autonome des états (repos, survol) et du style.
+  - `Panel.ts` : Conteneur standardisé avec fond et bordures thématiques.
+- **Nouveaux sous-composants pour la vue détail** :
+  - `SystemInfoPanel.ts` : Extraction du panneau de données stellaires.
+  - `SystemVisualizer.ts` : Extraction de la logique de rendu visuel de l'étoile.
+
+### Changed
+- **Refactorisation majeure de `SystemDetailView.ts`** : Code réduit et clarifié grâce à l'utilisation des nouveaux composants.
+- **Standardisation des imports** : Passage systématique aux alias (`@core`, `@game`, `@ui`, etc.) pour une meilleure maintenabilité.
+- Mise à jour de `HUD.ts` et `Grid.ts` pour consommer le `THEME` global.
+
+### Fixed
+- Corrections de types TypeScript dans les générateurs et le système stellaire.
+- Nettoyage des variables inutilisées et des imports fantômes pour un build 100% propre.
+
+---
+
+## [2026-01-15] - Initialisation et fonctionnalités de base
 
 ### Added
 - Documentation initiale du projet (SPEC.md, README.md, CLAUDE.md, TODO.md, CHANGELOG.md)
