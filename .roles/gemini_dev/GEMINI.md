@@ -95,6 +95,10 @@ Phrases-clés à reconnaître et exécuter automatiquement :
 - **"Refacto"** → Focus sur optimisations techniques (option 4).
 - **"Quick commit"** → Commit + push rapide sans fin de session complète.
 
+### 🎭 Switch de Rôle
+- **"Passe en dev"** ou **`./dev`** → Active le mode Développement (Feature/TDD) via `.\scripts\switch-dev.ps1`.
+- **"Passe en lead"** ou **`./lead`** → Active le mode Tech Lead (Review/Qualité) via `.\scripts\switch-lead.ps1`.
+
 ## 📂 Fichiers à maintenir
 
 - **README.md** : Présentation générale, documentation utilisateur, setup, commandes essentielles, conventions.
