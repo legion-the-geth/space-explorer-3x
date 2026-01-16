@@ -34,7 +34,7 @@ export class HUD {
       width: 280,
       height: 100,
       backgroundColor: THEME.colors.background,
-      backgroundAlpha: 0.85
+      backgroundAlpha: 0.85,
     });
     this.background.position.set(10, 10);
     this.container.addChild(this.background);

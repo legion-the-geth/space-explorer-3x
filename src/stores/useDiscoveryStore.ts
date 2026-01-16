@@ -61,10 +61,16 @@ interface DiscoveryStore {
   // Actions
   setPlayerPosition: (systemId: string, x: number, y: number) => void;
   updateSystemState: (systemId: string, state: SystemDiscoveryState) => void;
-  addJumpLine: (from: string, to: string, cost: number) => void;
-  scanSystem: (systemId: string, sourceX: number, sourceY: number, availableSystems: SystemInfo[]) => void;
+  addJumpLine: (from: string, to: string, cost: number) => boolean;
+  scanSystem: (
+    systemId: string,
+    sourceX: number,
+    sourceY: number,
+    availableSystems: SystemInfo[]
+  ) => void;
   jumpToSystem: (systemId: string, x: number, y: number) => void;
   getSystemState: (systemId: string) => SystemDiscoveryState;
+  isSystemJumpable: (systemId: string) => boolean;
   initializePlayer: (x: number, y: number) => void;
   setVisibleSystems: (systemIds: string[]) => void;
   getConnectionCount: (systemId: string) => number;
@@ -94,9 +100,10 @@ export const discoveryStore = createStore<DiscoveryStore>((set, get) => ({
       id: systemId,
       state,
       scannedAt: state === SystemDiscoveryState.SCANNED ? timestamp : existingData?.scannedAt,
-      visitedAt: state === SystemDiscoveryState.VISITED || state === SystemDiscoveryState.SCANNED
-        ? timestamp
-        : existingData?.visitedAt,
+      visitedAt:
+        state === SystemDiscoveryState.VISITED || state === SystemDiscoveryState.SCANNED
+          ? timestamp
+          : existingData?.visitedAt,
     };
 
     const updatedSystems = new Map(discoveredSystems);
@@ -106,7 +113,7 @@ export const discoveryStore = createStore<DiscoveryStore>((set, get) => ({
   },
 
   // Add a jump line between two systems
-  addJumpLine: (from: string, to: string, cost: number) => {
+  addJumpLine: (from: string, to: string, cost: number): boolean => {
     const { jumpLines } = get();
 
     // Check if line already exists
@@ -116,12 +123,11 @@ export const discoveryStore = createStore<DiscoveryStore>((set, get) => ({
 
     if (!exists) {
       set({
-        jumpLines: [
-          ...jumpLines,
-          { from, to, cost, discoveredAt: Date.now() },
-        ],
+        jumpLines: [...jumpLines, { from, to, cost, discoveredAt: Date.now() }],
       });
+      return true;
     }
+    return false;
   },
 
   // Get number of connections for a system
@@ -137,7 +143,14 @@ export const discoveryStore = createStore<DiscoveryStore>((set, get) => ({
     sourceY: number,
     availableSystems: SystemInfo[]
   ) => {
-    const { updateSystemState, addJumpLine, getConnectionCount, jumpLines, discoveredSystems } = get();
+    const {
+      updateSystemState,
+      addJumpLine,
+      getConnectionCount,
+      jumpLines,
+      discoveredSystems,
+      getSystemState,
+    } = get();
 
     // Update system state to SCANNED
     updateSystemState(systemId, SystemDiscoveryState.SCANNED);
@@ -146,9 +159,17 @@ export const discoveryStore = createStore<DiscoveryStore>((set, get) => ({
     const MAX_JUMP_DISTANCE = 200; // 20 AL
     const MAX_CONNECTIONS = 4;
 
-    // Filter systems within jump range
+    // Identify systems already connected to the current one
+    const connectedSystemIds = new Set<string>();
+    jumpLines.forEach(line => {
+      if (line.from === systemId) connectedSystemIds.add(line.to);
+      if (line.to === systemId) connectedSystemIds.add(line.from);
+    });
+
+    // Filter systems within jump range AND NOT already connected
     const nearSystems = availableSystems.filter((sys) => {
       if (sys.id === systemId) return false; // Don't connect to self
+      if (connectedSystemIds.has(sys.id)) return false; // Don't duplicate connection
 
       const dx = sys.x - sourceX;
       const dy = sys.y - sourceY;
@@ -164,10 +185,7 @@ export const discoveryStore = createStore<DiscoveryStore>((set, get) => ({
       return distA - distB;
     });
 
-    // Check if this system has any existing connections
-    const existingConnections = jumpLines.filter(
-      (line) => line.from === systemId || line.to === systemId
-    ).length;
+    const existingConnectionsCount = connectedSystemIds.size;
 
     // Check if player has other accessible systems (to avoid softlock)
     const hasOtherAccessibleSystems = Array.from(discoveredSystems.values()).some(
@@ -181,16 +199,16 @@ export const discoveryStore = createStore<DiscoveryStore>((set, get) => ({
     // Distribution: 0:10%, 1:15%, 2:25%, 3:35%, 4:15%
     const roll = Math.random();
     let numLines: number;
-    if (roll < 0.10) numLines = 0;
+    if (roll < 0.1) numLines = 0;
     else if (roll < 0.25) numLines = 1;
-    else if (roll < 0.50) numLines = 2;
+    else if (roll < 0.5) numLines = 2;
     else if (roll < 0.85) numLines = 3;
     else numLines = 4;
 
     // ANTI-SOFTLOCK: Guarantee at least 1 line if:
     // - This system has no existing connections AND
     // - Player has no other accessible systems with connections
-    if (existingConnections === 0 && !hasOtherAccessibleSystems && numLines === 0) {
+    if (existingConnectionsCount === 0 && !hasOtherAccessibleSystems && numLines === 0) {
       numLines = 1;
       console.log('⚠️ Anti-softlock: forcing 1 jump line to prevent player from being stuck');
     }
@@ -211,39 +229,81 @@ export const discoveryStore = createStore<DiscoveryStore>((set, get) => ({
       const distance = Math.sqrt(dx * dx + dy * dy);
 
       // Probability decreases with distance
-      // Formula: P = 1 / (1 + distance/50)
-      // At distance=0: P=1.0 (100%)
-      // At distance=50: P=0.5 (50%)
-      // At distance=100: P=0.33 (33%)
-      // At distance=200: P=0.2 (20%)
       const probability = 1 / (1 + distance / 50);
 
       if (Math.random() < probability) {
-        addJumpLine(systemId, targetSystem.id, distance);
-        createdLines++;
+        const added = addJumpLine(systemId, targetSystem.id, distance);
+        
+        if (added) {
+            createdLines++;
+            // Update target system state to REACHABLE if it was VISIBLE or UNKNOWN
+            const targetState = getSystemState(targetSystem.id);
+            if (targetState === SystemDiscoveryState.VISIBLE || targetState === SystemDiscoveryState.UNKNOWN) {
+                updateSystemState(targetSystem.id, SystemDiscoveryState.REACHABLE);
+            }
+        }
       }
     }
 
-    console.log(`🔬 Scanned system ${systemId}: created ${createdLines} jump lines`);
+    console.log(`🔬 Scanned system ${systemId}: created ${createdLines} new jump lines (had ${existingConnectionsCount} existing)`);
   },
 
   // Jump to a system
   jumpToSystem: (systemId: string, x: number, y: number) => {
-    const { setPlayerPosition, updateSystemState } = get();
+    const { setPlayerPosition, updateSystemState, getSystemState, jumpLines } = get();
 
     // Update player position
     setPlayerPosition(systemId, x, y);
 
-    // Update system state to VISITED
-    updateSystemState(systemId, SystemDiscoveryState.VISITED);
+    // Update system state to VISITED (if not already SCANNED)
+    const currentState = getSystemState(systemId);
+    if (currentState !== SystemDiscoveryState.SCANNED) {
+      updateSystemState(systemId, SystemDiscoveryState.VISITED);
+    }
 
-    // TODO: Update visibility zone (will be implemented in step 2)
+    // When jumping to a system, all its neighbors via jump lines should become REACHABLE
+    jumpLines.forEach((line) => {
+      let neighborId: string | null = null;
+      if (line.from === systemId) neighborId = line.to;
+      else if (line.to === systemId) neighborId = line.from;
+
+      if (neighborId) {
+        const neighborState = getSystemState(neighborId);
+        if (
+          neighborState === SystemDiscoveryState.VISIBLE ||
+          neighborState === SystemDiscoveryState.UNKNOWN
+        ) {
+          updateSystemState(neighborId, SystemDiscoveryState.REACHABLE);
+        }
+      }
+    });
   },
 
   // Get system state (returns UNKNOWN if not found)
   getSystemState: (systemId: string): SystemDiscoveryState => {
     const { discoveredSystems } = get();
     return discoveredSystems.get(systemId)?.state ?? SystemDiscoveryState.UNKNOWN;
+  },
+
+  // Check if a system can be jumped to from current position
+  isSystemJumpable: (systemId: string): boolean => {
+    const { playerPosition, jumpLines, getSystemState } = get();
+
+    // Cannot jump to current system
+    if (systemId === playerPosition.systemId) return false;
+
+    // System must be REACHABLE, VISITED or SCANNED
+    const state = getSystemState(systemId);
+    if (state === SystemDiscoveryState.UNKNOWN || state === SystemDiscoveryState.VISIBLE) {
+      return false;
+    }
+
+    // Must have a jump line between current system and target system
+    return jumpLines.some(
+      (line) =>
+        (line.from === playerPosition.systemId && line.to === systemId) ||
+        (line.from === systemId && line.to === playerPosition.systemId)
+    );
   },
 
   // Initialize player at spawn point

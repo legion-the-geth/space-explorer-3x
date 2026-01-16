@@ -25,11 +25,7 @@ export class PlanetGenerator {
     return planets;
   }
 
-  private static generatePlanet(
-    _systemSeed: string,
-    index: number,
-    rng: SeededRandom
-  ): Planet {
+  private static generatePlanet(_systemSeed: string, index: number, rng: SeededRandom): Planet {
     // Planet types distribution (simple for MVP)
     const typeRoll = rng.random();
     let type: PlanetType;

@@ -64,14 +64,11 @@ export class Grid {
       const strokeWidth = isAxis ? 2 / zoom : tier.lineWidth / zoom;
       const strokeAlpha = isAxis ? 0.6 : tier.alpha;
 
-      this.graphics
-        .moveTo(x, topLeft.y)
-        .lineTo(x, bottomRight.y)
-        .stroke({
-          width: strokeWidth,
-          color: strokeColor,
-          alpha: strokeAlpha,
-        });
+      this.graphics.moveTo(x, topLeft.y).lineTo(x, bottomRight.y).stroke({
+        width: strokeWidth,
+        color: strokeColor,
+        alpha: strokeAlpha,
+      });
     }
 
     // Draw horizontal lines
@@ -83,14 +80,11 @@ export class Grid {
       const strokeWidth = isAxis ? 2 / zoom : tier.lineWidth / zoom;
       const strokeAlpha = isAxis ? 0.6 : tier.alpha;
 
-      this.graphics
-        .moveTo(topLeft.x, y)
-        .lineTo(bottomRight.x, y)
-        .stroke({
-          width: strokeWidth,
-          color: strokeColor,
-          alpha: strokeAlpha,
-        });
+      this.graphics.moveTo(topLeft.x, y).lineTo(bottomRight.x, y).stroke({
+        width: strokeWidth,
+        color: strokeColor,
+        alpha: strokeAlpha,
+      });
     }
   }
 

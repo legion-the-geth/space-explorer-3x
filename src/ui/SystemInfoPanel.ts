@@ -8,11 +8,7 @@ import { Panel } from '@ui/components/Panel';
  * Panel showing detailed information about a star system
  */
 export class SystemInfoPanel extends Panel {
-  constructor(
-    system: StarSystem,
-    systemState: SystemDiscoveryState,
-    connectedSystems: string[]
-  ) {
+  constructor(system: StarSystem, systemState: SystemDiscoveryState, connectedSystems: string[]) {
     super({
       width: 350,
       height: 400,

@@ -9,24 +9,24 @@ export const THEME = {
     background: 0x0a0e27,
     panelBackground: 0x1a1a1a,
     panelBackgroundAlpha: 0.9,
-    
+
     // UI Elements
     border: 0x444444,
     separator: 0x444444,
     gridLine: 0xededed,
     gridAxis: 0xffffff,
-    
+
     // Text
     textPrimary: 0xffffff,
     textSecondary: 0xaaaaaa,
     textMuted: 0x888888,
     textAccent: 0x00aaff,
-    
+
     // States
     success: 0x00ff00,
     warning: 0xffa500,
     error: 0xff4444,
-    
+
     // Buttons
     button: {
       default: {
@@ -44,10 +44,10 @@ export const THEME = {
       primaryHover: {
         bg: 0x0088ff,
         stroke: 0x00aaff,
-      }
-    }
+      },
+    },
   },
-  
+
   typography: {
     fontFamily: 'Courier New, monospace',
     size: {
@@ -56,14 +56,14 @@ export const THEME = {
       normal: 14,
       medium: 16,
       large: 24,
-    }
+    },
   },
-  
+
   layout: {
     padding: 10,
     borderRadius: 4,
     borderWidth: 2,
-  }
+  },
 } as const;
 
 export type Theme = typeof THEME;

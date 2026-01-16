@@ -76,19 +76,14 @@ async function init() {
   const spawnSystem = universeGenerator.generateSpawnSystem(spawnX, spawnY);
 
   // Generate star systems within visibility radius around spawn point
-  const otherSystems = universeGenerator.generateSystemsInRadius(
-    spawnX,
-    spawnY,
-    VISIBILITY_RADIUS
-  );
+  const otherSystems = universeGenerator.generateSystemsInRadius(spawnX, spawnY, VISIBILITY_RADIUS);
 
   // Combine spawn system with other systems (remove duplicates if any)
-  const initialSystems = [
-    spawnSystem,
-    ...otherSystems.filter((s) => s.id !== spawnSystem.id),
-  ];
+  const initialSystems = [spawnSystem, ...otherSystems.filter((s) => s.id !== spawnSystem.id)];
 
-  console.log(`🌟 Generated ${initialSystems.length} star systems in visibility radius (${VISIBILITY_RADIUS / 10} AL)`);
+  console.log(
+    `🌟 Generated ${initialSystems.length} star systems in visibility radius (${VISIBILITY_RADIUS / 10} AL)`
+  );
 
   // Initialize player at spawn system (0, 0)
   // This will mark the spawn system as VISITED in the discovery store
@@ -98,11 +93,17 @@ async function init() {
   // Mark all generated systems as VISIBLE (spawn system will remain VISITED)
   setVisibleSystems(initialSystems.map((s) => s.id));
 
-  console.log(`🎮 Player spawned at system ${spawnSystem.name} (${spawnSystem.position.x.toFixed(0)}, ${spawnSystem.position.y.toFixed(0)})`);
+  console.log(
+    `🎮 Player spawned at system ${spawnSystem.name} (${spawnSystem.position.x.toFixed(0)}, ${spawnSystem.position.y.toFixed(0)})`
+  );
 
   // Container for jump lines (rendered behind stars)
   const jumpLinesContainer = new Container();
   camera.container.addChild(jumpLinesContainer);
+
+  // Container for star systems
+  const starsContainer = new Container();
+  camera.container.addChild(starsContainer);
 
   // Render star systems in galaxy view
   const systemGraphics: Map<
@@ -110,14 +111,15 @@ async function init() {
     { container: Container; star: Graphics; glow: Graphics; system: StarSystem }
   > = new Map();
 
-  initialSystems.forEach((system) => {
-    const starContainer = new Container();
-    starContainer.eventMode = 'static';
-    starContainer.cursor = 'pointer';
+  const allSystems: StarSystem[] = [...initialSystems];
 
-    // Get discovery state from store
+  // Function to update star visual after state change
+  const updateStarVisual = (systemId: string) => {
+    const systemGraphic = systemGraphics.get(systemId);
+    if (!systemGraphic) return;
+
     const { getSystemState } = discoveryStore.getState();
-    const discoveryState = getSystemState(system.id);
+    const discoveryState = getSystemState(systemId);
 
     // Determine visual properties based on discovery state
     let starColor: number;
@@ -125,46 +127,60 @@ async function init() {
 
     switch (discoveryState) {
       case SystemDiscoveryState.UNKNOWN:
-        // Should not be rendered (but just in case, make it invisible)
-        starContainer.visible = false;
+        systemGraphic.container.visible = false;
         return;
 
       case SystemDiscoveryState.VISIBLE:
-        // Gray dot with subtle glow
         starColor = 0x888888;
         glowAlpha = 0.3;
         break;
 
       case SystemDiscoveryState.REACHABLE:
       case SystemDiscoveryState.VISITED:
-        // Colored star with glow
-        starColor = system.star.color;
+        starColor = systemGraphic.system.star.color;
         glowAlpha = 0.3;
         break;
 
       case SystemDiscoveryState.SCANNED:
-        // Colored star with stronger glow
-        starColor = system.star.color;
+        starColor = systemGraphic.system.star.color;
         glowAlpha = 0.5;
         break;
 
       default:
-        starColor = system.star.color;
+        starColor = systemGraphic.system.star.color;
         glowAlpha = 0.3;
     }
 
-    // Glow effect (always present for all visible systems)
-    const glowSize = system.star.type === 'O' || system.star.type === 'B' ? 10 : 8;
+    // Update colors
+    const glowSize =
+      systemGraphic.system.star.type === 'O' || systemGraphic.system.star.type === 'B' ? 10 : 8;
+    systemGraphic.glow.clear();
+    systemGraphic.glow.circle(0, 0, glowSize);
+    systemGraphic.glow.fill({ color: starColor, alpha: glowAlpha });
+
+    systemGraphic.star.clear();
+    const starSize =
+      systemGraphic.system.star.type === 'O' || systemGraphic.system.star.type === 'B' ? 6 : 5;
+    systemGraphic.star.circle(0, 0, starSize);
+    systemGraphic.star.fill({ color: starColor });
+
+    systemGraphic.container.visible = true;
+  };
+
+  const renderSystem = (system: StarSystem) => {
+    if (systemGraphics.has(system.id)) {
+      updateStarVisual(system.id);
+      return;
+    }
+
+    const starContainer = new Container();
+    starContainer.eventMode = 'static';
+    starContainer.cursor = 'pointer';
+
     const glow = new Graphics();
-    glow.circle(0, 0, glowSize);
-    glow.fill({ color: starColor, alpha: glowAlpha });
     starContainer.addChild(glow);
 
-    // Star graphic
-    const starSize = system.star.type === 'O' || system.star.type === 'B' ? 6 : 5;
     const star = new Graphics();
-    star.circle(0, 0, starSize);
-    star.fill({ color: starColor });
     starContainer.addChild(star);
 
     starContainer.position.set(system.position.x, system.position.y);
@@ -173,16 +189,14 @@ async function init() {
     starContainer.on('pointerdown', (event) => {
       if (event.button === 0) {
         // Left click only
-        // Only show details for VISITED or SCANNED systems
-        if (
-          discoveryState === SystemDiscoveryState.VISITED ||
-          discoveryState === SystemDiscoveryState.SCANNED
-        ) {
+        const { getSystemState } = discoveryStore.getState();
+        const discoveryState = getSystemState(system.id);
+
+        // Only show details for systems that are at least VISIBLE
+        if (discoveryState !== SystemDiscoveryState.UNKNOWN) {
           console.log(`Clicked on system: ${system.name}`);
           viewManager.showSystemView(system.id);
           systemDetailView.showSystem(system);
-        } else {
-          console.log(`System ${system.name} is not accessible yet (state: ${discoveryState})`);
         }
       }
     });
@@ -198,9 +212,15 @@ async function init() {
       glow.scale.set(1);
     });
 
-    camera.container.addChild(starContainer);
+    starsContainer.addChild(starContainer);
     systemGraphics.set(system.id, { container: starContainer, star, glow, system });
-  });
+
+    // Initial visual update
+    updateStarVisual(system.id);
+  };
+
+  // Render initial systems
+  allSystems.forEach(renderSystem);
 
   // Add player icon (triangle) on the current system
   const playerIcon = new Graphics();
@@ -226,16 +246,19 @@ async function init() {
 
   // ========== SYSTEM VIEW SETUP ==========
 
-  // Declare renderJumpLines function (will be defined later)
+  // Declare functions
   let renderJumpLines: () => void;
 
   const systemDetailView = new SystemDetailView({
     screenWidth: app.screen.width,
     screenHeight: app.screen.height,
+    currentPlayerSystemId: discoveryStore.getState().playerPosition.systemId,
     onBackToGalaxy: () => {
       viewManager.showGalaxyView();
       // Refresh jump lines when returning to galaxy view
       renderJumpLines();
+      // Refresh all stars visual (some might have become REACHABLE)
+      allSystems.forEach((s) => updateStarVisual(s.id));
     },
     getSystemState: (systemId: string) => {
       const { getSystemState } = discoveryStore.getState();
@@ -250,14 +273,18 @@ async function init() {
       // Get system names
       return connectedSystemIds
         .map((id) => {
-          const system = initialSystems.find((s) => s.id === id);
+          const system = allSystems.find((s) => s.id === id);
           return system ? system.name : id;
         })
         .sort(); // Sort alphabetically
     },
+    isSystemJumpable: (systemId: string) => {
+      const { isSystemJumpable } = discoveryStore.getState();
+      return isSystemJumpable(systemId);
+    },
     onScanSystem: (systemId: string) => {
       // Find the system being scanned
-      const system = initialSystems.find((s) => s.id === systemId);
+      const system = allSystems.find((s) => s.id === systemId);
       if (!system) {
         console.error(`System ${systemId} not found`);
         return;
@@ -271,22 +298,63 @@ async function init() {
 
       // Generate jump lines via discovery store
       const { scanSystem } = discoveryStore.getState();
-      const availableSystems = initialSystems.map((s) => ({
+      const availableSystemsForScan = allSystems.map((s) => ({
         id: s.id,
         x: s.position.x,
         y: s.position.y,
       }));
 
-      scanSystem(systemId, system.position.x, system.position.y, availableSystems);
+      scanSystem(systemId, system.position.x, system.position.y, availableSystemsForScan);
 
       // Update jump lines rendering
       renderJumpLines();
 
-      // Update star visual (SCANNED state = stronger glow)
-      updateStarVisual(systemId);
+      // Update stars visual (potential new REACHABLE systems)
+      allSystems.forEach((s) => updateStarVisual(s.id));
 
       // Refresh system detail view to show planets
       systemDetailView.showSystem(system);
+    },
+    onJumpToSystem: (systemId: string) => {
+      const targetSystem = allSystems.find((s) => s.id === systemId);
+      if (!targetSystem) return;
+
+      console.log(`🚀 Jumping to system: ${targetSystem.name}`);
+
+      // Perform jump in store
+      const { jumpToSystem, setVisibleSystems } = discoveryStore.getState();
+      jumpToSystem(targetSystem.id, targetSystem.position.x, targetSystem.position.y);
+
+      // Update player position in Detail View
+      systemDetailView.setPlayerPosition(targetSystem.id);
+
+      // Update player icon
+      playerIcon.position.set(targetSystem.position.x, targetSystem.position.y);
+
+      // Discover new systems around destination
+      const newSystems = universeGenerator.generateSystemsInRadius(
+        targetSystem.position.x,
+        targetSystem.position.y,
+        VISIBILITY_RADIUS
+      );
+
+      // Add to known systems and render them
+      newSystems.forEach((s) => {
+        if (!allSystems.find((existing) => existing.id === s.id)) {
+          allSystems.push(s);
+          renderSystem(s);
+        }
+      });
+
+      // Mark new systems as VISIBLE in store
+      setVisibleSystems(newSystems.map((s) => s.id));
+
+      // Update visuals for everyone
+      allSystems.forEach((s) => updateStarVisual(s.id));
+
+      // Return to galaxy view
+      viewManager.showGalaxyView();
+      renderJumpLines();
     },
   });
 
@@ -297,8 +365,8 @@ async function init() {
     const { jumpLines } = discoveryStore.getState();
 
     jumpLines.forEach((line) => {
-      const fromSystem = initialSystems.find((s) => s.id === line.from);
-      const toSystem = initialSystems.find((s) => s.id === line.to);
+      const fromSystem = allSystems.find((s) => s.id === line.from);
+      const toSystem = allSystems.find((s) => s.id === line.to);
 
       if (!fromSystem || !toSystem) return;
 
@@ -310,24 +378,6 @@ async function init() {
 
       jumpLinesContainer.addChild(lineGraphic);
     });
-  };
-
-  // Function to update star visual after state change (e.g., after scan)
-  const updateStarVisual = (systemId: string) => {
-    const systemGraphic = systemGraphics.get(systemId);
-    if (!systemGraphic) return;
-
-    const { getSystemState } = discoveryStore.getState();
-    const discoveryState = getSystemState(systemId);
-
-    // Update glow based on new state
-    if (discoveryState === SystemDiscoveryState.SCANNED) {
-      const glowSize =
-        systemGraphic.system.star.type === 'O' || systemGraphic.system.star.type === 'B' ? 10 : 8;
-      systemGraphic.glow.clear();
-      systemGraphic.glow.circle(0, 0, glowSize);
-      systemGraphic.glow.fill({ color: systemGraphic.system.star.color, alpha: 0.5 }); // Stronger glow for SCANNED
-    }
   };
 
   viewManager.system.addChild(systemDetailView.displayObject);

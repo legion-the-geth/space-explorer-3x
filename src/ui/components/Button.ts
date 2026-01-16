@@ -52,13 +52,15 @@ export class Button extends Container {
 
   private draw(isHover: boolean): void {
     const { isPrimary, width, height } = this.options;
-    
+
     let bgColor: number;
     let strokeColor: number;
 
     if (isPrimary) {
       bgColor = isHover ? THEME.colors.button.primaryHover.bg : THEME.colors.button.primary.bg;
-      strokeColor = isHover ? THEME.colors.button.primaryHover.stroke : THEME.colors.button.primary.stroke;
+      strokeColor = isHover
+        ? THEME.colors.button.primaryHover.stroke
+        : THEME.colors.button.primary.stroke;
     } else {
       bgColor = isHover ? THEME.colors.button.hover.bg : THEME.colors.button.default.bg;
       strokeColor = isHover ? THEME.colors.button.hover.stroke : THEME.colors.button.default.stroke;

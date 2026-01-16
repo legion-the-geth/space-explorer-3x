@@ -56,7 +56,7 @@ export class Panel extends Container {
   }
 
   public get contentWidth(): number {
-    return this.panelWidth - (this.padding * 2);
+    return this.panelWidth - this.padding * 2;
   }
 
   public get innerPadding(): number {

@@ -9,17 +9,6 @@
 
 > **Voir détails complets dans** : [FEAT_001.md](./SPECS/FEAT_001.md)
 
-- [ ] **[FEAT]** Action "Jump to System" ~2h #gameplay @fullstack [FEAT-001-5]
-  Compléter FEAT-001 avec la mécanique de saut entre systèmes.
-  - [ ] Bouton "Jump to System" dans vue détail pour systèmes REACHABLE
-  - [ ] Téléportation + mise à jour état (REACHABLE → VISITED)
-  - [ ] Mise à jour zone de visibilité (nouveaux systèmes VISIBLE)
-  - [ ] Déplacement icône joueur sur la carte
-
-## 📋 Backlog MVP (Par ordre de priorité)
-
-### Phase 1 : Génération Procédurale de Base
-
 - [ ] **[FEAT]** Génération de planètes dans les systèmes ~1d #procgen @game
   Ajouter des planètes aux systèmes stellaires existants.
   - [ ] Générateur de planètes (types, tailles, orbites)
@@ -143,6 +132,10 @@
   Afficher le nom du système au survol sans cliquer.
 
 ## ✅ Terminé
+
+- [x] **[FEAT]** Action "Jump to System" ~2h #gameplay @fullstack [FEAT-001-5]
+  **Terminé le** : 2026-01-16
+  Implémentation de la mécanique de saut. Bouton contextuel dans la vue système, mise à jour de la position du joueur, gestion des états (REACHABLE/VISITED), génération dynamique de nouveaux systèmes lors du saut pour une exploration infinie. Refonte du rendu galaxie avec starsContainer pour gestion z-index.
 
 - [x] **[FEAT]** Système de découverte et fog of war (steps 1-4) ~1d #gameplay @fullstack [FEAT-001]
   **Terminé le** : 2026-01-15

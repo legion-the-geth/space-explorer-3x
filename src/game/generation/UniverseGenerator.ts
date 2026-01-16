@@ -123,11 +123,7 @@ export class UniverseGenerator {
   /**
    * Generate systems within a circular radius (for fog of war)
    */
-  public generateSystemsInRadius(
-    centerX: number,
-    centerY: number,
-    radius: number
-  ): StarSystem[] {
+  public generateSystemsInRadius(centerX: number, centerY: number, radius: number): StarSystem[] {
     const systems: StarSystem[] = [];
 
     // Snap to grid (bounding box)
