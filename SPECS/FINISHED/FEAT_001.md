@@ -2,11 +2,18 @@
 
 > **Version** : 1.1
 > **Date** : 2026-01-15
-> **Status** : 🟡 En cours (Steps 1-4 complétés, Step 5 restant)
+> **Status** : 🟢 Terminé
 
 ---
 
 ## 📝 Changelog
+
+### 2026-01-17 - Step 5 Implémenté (Feature Complete)
+- ✅ **Step 5**: Jump to System
+  - Mécanique de saut fonctionnelle
+  - Mise à jour de la position joueur
+  - Révélation des systèmes voisins (REACHABLE)
+  - Refonte UI avec boutons conditionnels
 
 ### 2026-01-15 - Steps 1-4 Implémentés
 - ✅ **Step 1**: Discovery Store (Zustand vanilla)
@@ -20,7 +27,7 @@
   - Status badge (Scanned vert / Visited orange)
   - Affichage jump lines dans panel de détails
   - Masquage bouton Scan après usage
-- ⏳ **Step 5**: Jump to System (à implémenter)
+- ✅ **Step 5**: Jump to System
 
 ---
 

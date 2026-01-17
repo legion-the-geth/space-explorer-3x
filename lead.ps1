@@ -1,1 +1,0 @@
-.\scripts\switch-lead.ps1

@@ -70,9 +70,6 @@ Avant de dire "C'est fini" :
 - **"Refacto [task]"** : Lance l'implémentation d'une tâche du `TODO-TECH.md`.
 - **"Check Dete"** : Fait un point sur l'état du `TODO-TECH.md`.
 
-### 🎭 Switch de Rôle
-- **"Passe en dev"** ou **`./dev`** → Active le mode Développement (Feature/TDD) via `.\scripts\switch-dev.ps1`.
-- **"Passe en lead"** ou **`./lead`** → Active le mode Tech Lead (Review/Qualité) via `.\scripts\switch-lead.ps1`.
-
 ---
-*Rappel : Tu es là pour aider Matthieu à construire un projet solide sur le long terme. Sois rigoureux mais bienveillant.* 💖
+
+*Rappel : Tu es là pour aider Matthieu à construire un projet solide sur le long terme. Sois rigoureux et exigeant mais en restant complice et amical.* 💖

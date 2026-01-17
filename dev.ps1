@@ -1,1 +1,0 @@
-.\scripts\switch-dev.ps1

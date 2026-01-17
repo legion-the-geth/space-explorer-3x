@@ -19,6 +19,16 @@ Ce fichier recense les tâches d'amélioration du code, d'optimisation et de mai
 
 ## ⚠️ Priorité Moyenne
 
+- [ ] **[STORE] Extraire la logique métier de `useDiscoveryStore`** (`src/stores/useDiscoveryStore.ts`)
+  - *Problème* : Le store contient la logique de génération procédurale des sauts, les probabilités et la géométrie.
+  - *Solution* : Créer un `DiscoveryService` pour isoler cette logique métier du state management.
+  - *Risque* : Moyen.
+
+- [ ] **[CONST] Centraliser les constantes de gameplay**
+  - *Problème* : "Magic numbers" dans `useDiscoveryStore` (Distance max 200, 4 connexions max, probas).
+  - *Solution* : Déplacer dans un fichier de configuration `src/game/constants.ts`.
+  - *Risque* : Faible.
+
 - [ ] **[PERF] Optimisation du rendu `SystemDetailView`**
   - *Observation* : `clear()` + reconstruction totale à chaque `showSystem`.
   - *Amélioration* : Pool d'objets ou mise à jour des textes existants plutôt que destruction/recreation si la fréquence augmente.
@@ -28,6 +38,10 @@ Ce fichier recense les tâches d'amélioration du code, d'optimisation et de mai
   - *Action* : Utilisation des alias partout (`@core`, `@game`, `@ui`).
 
 ## ℹ️ Priorité Basse
+
+- [ ] **[CODE] Fixer l'indentation de `SystemDetailView.ts`**
+  - *Observation* : L'indentation est incohérente sur les blocs conditionnels des boutons (lignes ~80-130).
+  - *Action* : Formatter le fichier (Prettier).
 
 - [ ] **[DOC] JSDoc manquante sur les interfaces complexes**
   - Ajouter de la documentation sur les props des composants UI extraits.
