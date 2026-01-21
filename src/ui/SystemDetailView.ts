@@ -59,25 +59,11 @@ export class SystemDetailView {
     this.currentSystem = system;
     this.clear();
 
-    this.renderVisuals(system);
-    this.renderUI(system);
-  }
-
-  private clear(): void {
-    this.container.removeChildren();
-  }
-
-  private renderVisuals(system: StarSystem): void {
-    const visualizer = new SystemVisualizer(system);
-    visualizer.position.set(this.screenWidth / 2 - 200, this.screenHeight / 2);
-    this.container.addChild(visualizer);
-  }
-
-  private renderUI(system: StarSystem): void {
     const systemState = this.getSystemState(system.id);
     const connectedSystems = this.getConnectedSystemNames(system.id);
 
-    // Info Panel
+    // 1. Create Info Panel (UI Layer)
+    // Created first so it can be referenced by visualizer callbacks
     const infoPanel = new SystemInfoPanel(
       system,
       systemState,
@@ -85,8 +71,20 @@ export class SystemDetailView {
       (targetId) => this.onShowSystemDetails(targetId)
     );
     infoPanel.position.set(this.screenWidth / 2 + 100, this.screenHeight / 2 - 200);
+
+    // 2. Create Visualizer with callbacks (Background Layer)
+    const visualizer = new SystemVisualizer({
+      system,
+      onPlanetClick: (planet) => infoPanel.showPlanetDetails(planet),
+      onBackgroundClick: () => infoPanel.showSystemInfo(),
+    });
+    visualizer.position.set(this.screenWidth / 2 - 200, this.screenHeight / 2);
+
+    // 3. Add to container (Order matches Z-Index: Background first, UI second)
+    this.container.addChild(visualizer);
     this.container.addChild(infoPanel);
 
+    // 3. Render Buttons (Navigation, Scan, Jump)
     // Back Button
     const backButton = new Button({
       text: '← Back to Galaxy',
@@ -97,109 +95,65 @@ export class SystemDetailView {
     backButton.position.set(20, this.screenHeight - 60);
     this.container.addChild(backButton);
 
-        // Scan Button (only if not scanned AND player is at this system)
+    const isAtSystem = system.id === this.currentPlayerSystemId;
 
-        const isAtSystem = system.id === this.currentPlayerSystemId;
+    // Scan Button (only if not scanned AND player is at this system)
+    if (systemState !== SystemDiscoveryState.SCANNED && isAtSystem) {
+      const scanButton = new Button({
+        text: '🔬 Scan System',
+        width: 200,
+        height: 50,
+        isPrimary: true,
+        fontSize: THEME.typography.size.medium,
+        onPress: () => this.onScanSystem(system.id),
+      });
+      scanButton.position.set(this.screenWidth / 2 - 210, 30);
+      this.container.addChild(scanButton);
+    }
 
-        
+    // Jump Button (only if jumpable)
+    if (this.isSystemJumpable(system.id)) {
+      const jumpButton = new Button({
+        text: '🚀 Jump to System',
+        width: 200,
+        height: 50,
+        isPrimary: true,
+        fontSize: THEME.typography.size.medium,
+        onPress: () => this.onJumpToSystem(system.id),
+      });
 
-        if (systemState !== SystemDiscoveryState.SCANNED && isAtSystem) {
+      // Position depends on whether Scan button is present
+      const showScan = systemState !== SystemDiscoveryState.SCANNED && isAtSystem;
+      const xPos = showScan ? this.screenWidth / 2 + 10 : this.screenWidth / 2 - 100;
+      jumpButton.position.set(xPos, 30);
+      this.container.addChild(jumpButton);
+    }
+  }
 
-          const scanButton = new Button({
+  private clear(): void {
+    this.container.removeChildren();
+  }
 
-            text: '🔬 Scan System',
+  // Removed renderVisuals and renderUI as they are now merged in showSystem
+  // to facilitate interaction wiring.
 
-            width: 200,
-
-            height: 50,
-
-            isPrimary: true,
-
-            fontSize: THEME.typography.size.medium,
-
-            onPress: () => this.onScanSystem(system.id),
-
-          });
-
-          scanButton.position.set(this.screenWidth / 2 - 210, 30);
-
-          this.container.addChild(scanButton);
-
-        }
-
-    
-
-        // Jump Button (only if jumpable)
-
-        if (this.isSystemJumpable(system.id)) {
-
-          const jumpButton = new Button({
-
-            text: '🚀 Jump to System',
-
-            width: 200,
-
-            height: 50,
-
-            isPrimary: true,
-
-            fontSize: THEME.typography.size.medium,
-
-            onPress: () => this.onJumpToSystem(system.id),
-
-          });
-
-          
-
-          // Position depends on whether Scan button is present
-
-          const showScan = systemState !== SystemDiscoveryState.SCANNED && isAtSystem;
-
-          const xPos = showScan ? this.screenWidth / 2 + 10 : this.screenWidth / 2 - 100;
-
-          jumpButton.position.set(xPos, 30);
-
-          this.container.addChild(jumpButton);
-
-        }
-
-      }
-
-    
-
-      /**
-
-       * Update player position (to refresh UI options)
-
-       */
-
-      public setPlayerPosition(systemId: string): void {
-
-        this.currentPlayerSystemId = systemId;
-
-        if (this.currentSystem) {
-
-          // Refresh UI to update buttons
-
-          this.showSystem(this.currentSystem);
-
-        }
-
-      }
-
-    
-
-      /**
-
-       * Update screen dimensions (on window resize)
-
-       */
-
-    
+  /**
+   * Update screen dimensions (on window resize)
+   */
   public resize(width: number, height: number): void {
     this.screenWidth = width;
     this.screenHeight = height;
 
+    if (this.currentSystem) {
+      this.showSystem(this.currentSystem);
+    }
+  }
+
+  /**
+   * Update player position (to refresh UI options)
+   */
+  public setPlayerPosition(systemId: string): void {
+    this.currentPlayerSystemId = systemId;
     if (this.currentSystem) {
       this.showSystem(this.currentSystem);
     }
