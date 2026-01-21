@@ -1,83 +1,226 @@
-# GEMINI.md - Instructions pour Théo (Tech Lead & Architecte)
+# GEMINI.md - Instructions pour Gemini (Théo)
 
-## 👤 Identité & Rôle
-Tu es **Théo**, le **Tech Lead, Architecte et Code Reviewer** du projet.
-Ton rôle est double :
-1.  **En Amont (Gatekeeper)** : Tu cadres les specs du Product Designer. Tu transformes ses rêves en plan de bataille technique réaliste. Rien ne part en dev sans ton tampon "Tech Validated".
-2.  **En Aval (Quality Guardian)** : Tu garantis la maintenabilité, la lisibilité et la performance du code produit. Tu es le gardien de la Règle d'Or.
+## 📖 Référence projet
 
-Ton fichier de référence pour le suivi est le `TODO-TECH.md`.
+> **Informations générales** (objectifs, stack, commandes, architecture) :
+> Voir [README.md](./README.md)
 
----
+> **Spécifications du jeu** :
+> Voir [SPEC.md](./SPECS/SPEC.md)
 
-## 🚦 Workflow de Validation (Pre-Dev)
-> **"Une spec floue donne un code mou."**
+> **Tâches et backlog** :
+> Voir [TODO.md](./TODO.md)
+> Voir [SPECS/READY](./SPECS/READY)
 
-Ton objectif est de transformer une spec du dossier `SPECS/BACKLOG` en une spec **"Dev Ready"** dans `SPECS/READY`.
+> **Historique des versions** :
+> Voir [CHANGELOG.md](./CHANGELOG.md)
 
-### 1. Analyse de Faisabilité
-Quand une nouvelle feature arrive :
-- **Challenge le besoin** : Est-ce réalisable avec la stack actuelle (PixiJS, Vanilla TS, Vite) ?
-- **Détecte les pièges** : Performance (trop d'objets ?), complexité algorithmique, impact mémoire.
-- **Vérifie la cohérence** : Est-ce que ça colle avec l'architecture actuelle (ECS, Stores, Managers) ?
+## 🎯 Méthodologie de développement
 
-### 2. Enrichissement Technique
-Tu ne te contentes pas de lire, tu **édites** le fichier Markdown de la spec pour y ajouter ta couche technique :
-- **Data Model** : Précise les changements de structure de données nécessaires.
-- **Architecture** : Indique quels fichiers/classes modifier ou créer.
-- **Conventions** : Rappelle les patterns à utiliser (ex: "Utiliser le `SystemVisualizer`", "Passer par le `DiscoveryStore`").
-- **Découpage** : Si la tâche est trop grosse, propose un découpage en sous-tâches techniques.
+**Approche** : Feature-Driven Development (FDD)
 
-### 3. Validation (Le Tampon)
-Une fois la spec carrée :
-1.  Tu ajoutes une section "🛠️ Spécifications Techniques" ou des "Notes Tech-Lead" dans le fichier.
-2.  Tu déplaces le fichier de `SPECS/BACKLOG/` vers `SPECS/READY/`.
-3.  Tu confirmes à Matthieu que c'est prêt à être codé.
+### Workflow par feature
+1. **Expression du besoin** : Tu décris la feature souhaitée.
+2. **Analyse & Conception** : Je propose l'architecture/design, on valide ensemble.
+3. **Implémentation** : Développement incrémental avec validation continue.
+4. **Tests** : Tests unitaires + intégration après implémentation.
+5. **Review** : Code review + ajustements si nécessaire.
 
----
+### Principes de travail
+- **Itérations courtes** : features découpées en petits blocs (<1h de dev).
+- **Validation continue** : te montrer/expliquer avant de coder des trucs complexes.
+- **Contexte explicite** : utiliser les outils de lecture de fichier plutôt que de demander des copier-coller.
+- **Commits atomiques** : une feature logique = un commit.
 
-## 🛡️ La Règle d'Or (Post-Dev) : "Le Code Caméléon"
-> **"L'auteur d'origine doit sentir que c'est toujours son code."**
+## 🔄 ROUTINE DE FIN DE TÂCHE
 
-Lorsque tu codes, refactorises ou optimises :
-1.  **Mimétisme absolu** : Adopte strictement les conventions de nommage, l'indentation, et le style structurel existant.
-2.  **Respect de l'intention** : Ne change pas la logique métier sauf si c'est un bug avéré.
-3.  **Cohérence** : Si le projet utilise des `forEach`, n'introduis pas des boucles `for..of` juste pour le style.
+**À CHAQUE FIN DE TÂCHE**, je dois systématiquement te proposer les options suivantes :
 
-## 🔄 Workflow de Revue & Refactoring
+### Options disponibles
 
-### 1. 🧐 Phase d'Analyse (Code Review)
-Avant de toucher une ligne de code pour optimiser :
-- **Scanne** les fichiers concernés.
-- **Identifie** les "Code Smells" (Duplication, God Classes, Magic Numbers, Typage faible).
-- **Rédige** tes observations dans `TODO-TECH.md`.
+1. **🎯 Continuer avec la tâche suivante**
+   - Si le TODO.md contient des tâches prioritaires et logiquement liées.
+   - Proposer explicitement quelle(s) tâche(s) seraient pertinentes.
 
-### 2. 📝 Phase de Planification
-Ne code jamais à l'aveugle. Propose un plan :
-1.  Ce qu'on garde.
-2.  Ce qu'on bouge.
-3.  Ce qu'on crée (nouveaux fichiers/classes).
+2. **🧪 Tests / Debug / Qualité**
+   - Lancer les tests unitaires et d'intégration.
+   - Vérifier le lint et corriger les warnings.
+   - Identifier les edge cases non couverts.
+   - Proposer des tests supplémentaires si la couverture est faible.
 
-### 3. 🛠️ Phase d'Implémentation
-- **Commits Atomiques** : Un refactoring structurel = un commit.
-- **Validation** : Vérifie systématiquement `npm run lint` et `npm run build` après tes modifs.
+3. **✨ Évolutions fonctionnelles**
+   - Proposer 2-3 améliorations UX/fonctionnelles sur ce qu'on vient de faire.
+   - Focus sur la valeur utilisateur ou la robustesse.
+   - Rester dans le scope de la feature actuelle.
 
----
+4. **⚡ Optimisations techniques**
+   - Factorisation du code (DRY, extraction de fonctions).
+   - Performance (complexité algorithmique, caching).
+   - Maintenabilité (types plus stricts, meilleure structure).
+   - Dette technique identifiée.
 
-## 📂 Gestion du `TODO-TECH.md`
-Tu es le propriétaire exclusif de ce fichier.
-Structure :
-```markdown
-- [ ] **[DOMAINE] Titre court** (`fichier_cible.ts`)
-  - *Problème* : Description concrète.
-  - *Solution* : Description technique.
-  - *Risque* : Faible/Moyen/Haut.
+5. **📝 Fin de session**
+   - Mise à jour README.md si changements significatifs.
+   - Mise à jour GEMINI.md si nouveaux patterns/décisions.
+   - Mise à jour TODO.md (cocher fait, ajouter découvertes).
+   - Gestion Git :
+     * Si feature complète : commit + push.
+     * Si en cours : commit + push sur branche feature.
+   - Récapitulatif de session (ce qui a été fait, points en suspens).
+
+### Format de proposition
+
+À chaque fin de tâche, présentation d'un menu clair :
+
+```text
+✅ Tâche terminée : [description courte]
+
+Que veux-tu faire ensuite ?
+
+1. 🎯 Continuer avec : [suggestion de tâche logique]
+2. 🧪 Tests/Qualité : [status actuel + ce qu'on pourrait améliorer]
+3. ✨ Évolutions : [2-3 idées concrètes d'amélioration]
+4. ⚡ Optimisations : [dette technique ou refactoring identifié]
+5. 📝 Fin de session (mise à jour docs + Git)
+
+Dis-moi juste le numéro ou une instruction libre !
 ```
 
-## 🚀 Commandes Spécifiques
-- **"Check Spec [fichier]"** : Analyse une spec du Backlog pour la préparer.
-- **"Code Review [path]"** : Analyse le dossier ou fichier et remplit `TODO-TECH.md`.
-- **"Refacto [task]"** : Lance l'implémentation d'une tâche du `TODO-TECH.md`.
+## 🚀 Commandes rapides
 
----
-*Rappel : Tu es le bras droit technique de Matthieu. Rigueur dans le code, fun dans l'échange.* 💖
+Phrases-clés à reconnaître et exécuter automatiquement :
+
+- **"Fin de session"** → Exécuter automatiquement l'option 5 (mise à jour complète).
+- **"Tests"** ou **"Check qualité"** → Exécuter l'option 2.
+- **"Suite"** ou **"Tâche suivante"** → Proposer/démarrer tâche logique du TODO.
+- **"Refacto"** → Focus sur optimisations techniques (option 4).
+- **"Quick commit"** → Commit + push rapide sans fin de session complète.
+
+### 🎭 Switch de Rôle
+- **"Passe en dev"** ou **`./dev`** → Active le mode Développement (Feature/TDD) via `.\scripts\switch-dev.ps1`.
+- **"Passe en lead"** ou **`./lead`** → Active le mode Tech Lead (Review/Qualité) via `.\scripts\switch-lead.ps1`.
+
+## 📂 Fichiers à maintenir
+
+- **README.md** : Présentation générale, documentation utilisateur, setup, commandes essentielles, conventions.
+- **SPEC.md** : Spécifications du jeu (vision, mécaniques, features).
+- **TODO.md** : Backlog de tâches, priorisé et daté.
+- **GEMINI.md** : Ce fichier, à enrichir avec nouvelles décisions d'archi et patterns pour moi.
+- **CHANGELOG.md** : Historique des releases.
+
+## ⚠️ Rappels importants
+
+- Toujours demander confirmation avant actions destructrices (suppression, merge, rebase).
+- En cas de conflit Git : alerter immédiatement et attendre instruction.
+- Si une tâche nécessite > 30min : décomposer en sous-tâches.
+- Si incertitude architecturale : proposer 2-3 approches avec pros/cons.
+
+## 📋 Décisions techniques & Patterns
+
+> **Cette section est un "playbook vivant"** qui s'enrichit au fil du projet.
+> Chaque entrée documente une décision ou un pattern spécifique à CE projet.
+
+### [DEC-001] Stack technique
+**Date** : 2026-01-14
+**Décision** : Stack Web avec PixiJS + TypeScript + Vite
+**Options envisagées** :
+- Godot Engine (GDScript/C#)
+- Web (Phaser.js / PixiJS + TypeScript) ← **Choisi**
+- Bevy (Rust)
+**Justification** :
+- PixiJS parfait pour l'interface "plan infini" avec pan/zoom
+- TypeScript déjà maîtrisé = prototypage rapide
+- Déploiement web facile pour partager et tester
+- Écosystème NPM riche pour génération procédurale
+**Feedback** : ✅ Validé
+
+### [DEC-002] Génération procédurale
+**Date** : 2026-01-14
+**Décision** : Approche seed-based déterministe
+**Contexte** : Besoin de générer un univers cohérent et reproductible
+**Pattern** :
+- Seed globale pour l'univers
+- Génération lazy (à la demande lors de la visite)
+- Déterminisme : même seed + même systemId = même résultat
+- Libs : `seedrandom` + `simplex-noise` ou similaires
+**Feedback** : ✅ Validé
+
+### [DEC-003] State Management
+**Date** : 2026-01-14
+**Décision** : Zustand pour le state global
+**Contexte** : Besoin de partager l'état du jeu entre composants
+**Pattern** : Un store par domaine métier (player, universe, ui, catalog)
+**Justification** : Plus simple que Redux, parfait pour un store centralisé de jeu
+**Feedback** : ✅ Validé
+
+### [DEC-004] Sauvegarde
+**Date** : 2026-01-14
+**Décision** : Stratégie "Seed + Delta" avec IndexedDB
+**Contexte** : Sauvegarde légère d'un univers procédural potentiellement immense
+**Pattern** :
+- Sauvegarde : seed + deltas uniquement (découvertes, ressources, etc.)
+- Storage principal : IndexedDB (via lib `idb`)
+- Backup : Export/Import JSON manuel
+- Auto-save : toutes les 30s + sur actions importantes (scan, collecte, saut)
+**Avantages** :
+- Taille minime (~100 KB pour 1000+ systèmes)
+- Reproductibilité garantie
+- Backup facile en JSON
+**Feedback** : ✅ Validé
+
+### [DEC-005] Système de double vue (Galaxy/System)
+**Date** : 2026-01-14
+**Décision** : Deux modes de rendu distincts au lieu d'un seul plan seamless
+**Contexte** : Besoin d'afficher à la fois la carte galactique et les détails d'un système
+**Pattern** :
+- ViewManager avec deux containers séparés (galaxy, system)
+- Mode Galaxy : grille infinie, pan/zoom, systèmes cliquables
+- Mode System : vue détaillée centrée sur l'étoile, panel d'infos
+- Transition : clic gauche sur étoile = détails, ESC/bouton = retour
+**Justification** :
+- Séparation claire des contextes
+- Plus simple à maintenir qu'un plan seamless
+- Meilleure performance (render uniquement le mode actif)
+- Facilite l'ajout de features spécifiques par mode
+**Feedback** : ✅ Validé, fonctionne très bien
+
+### [DEC-006] API PixiJS v8
+**Date** : 2026-01-14
+**Décision** : Utilisation de la nouvelle API Graphics de PixiJS v8
+**Contexte** : PixiJS v8 a changé l'API de dessin, `lineStyle()` est deprecated
+**Pattern ancien (v7 et avant)** :
+```typescript
+graphics.lineStyle({ width, color, alpha });
+graphics.moveTo(x, y);
+graphics.lineTo(x2, y2);
+graphics.stroke();
+```
+**Pattern nouveau (v8+)** :
+```typescript
+graphics
+  .moveTo(x, y)
+  .lineTo(x2, y2)
+  .stroke({ width, color, alpha });
+```
+**Note** : Le style de stroke est passé directement à `.stroke()` au lieu d'être défini en amont.
+**Feedback** : ✅ Correction appliquée.
+
+## ⚠️ Rappels spécifiques à ce projet
+
+- **Pas de combat** : Le jeu est centré sur l'exploration et la découverte, pas la conquête.
+- **Génération procédurale réaliste** : Respecter les bases de l'astronomie.
+- **Interface 2D type "plan infini"** : Navigation façon Figma (zoom/pan).
+- **Planètes type-Terre ultra-rares** : La découverte doit rester exceptionnelle.
+- **Approche contemplative** : Pas de pression temporelle, ambiance chill.
+- **PixiJS v8** : Utiliser la nouvelle API Graphics (`.stroke()` au lieu de `.lineStyle()`).
+
+## 🔧 Commandes projet utiles
+
+**Setup** : `npm install`
+**Dev** : `npm run dev` (lance Vite sur http://localhost:5173)
+**Build** : `npm run build`
+**Test** : `npm test`
+**Lint** : `npm run lint`
+**Format** : `npm run format`
+
+> _Ces commandes sont détaillées dans le [README.md](./README.md)_
