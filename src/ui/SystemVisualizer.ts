@@ -58,8 +58,8 @@ export class SystemVisualizer extends Container {
 
     // Glow
     this.glowGraphic = new Graphics();
-    this.glowGraphic.circle(0, 0, this.STAR_RADIUS * 2.5);
-    this.glowGraphic.fill({ color, alpha: 0.1 }); // Reduced alpha
+    this.glowGraphic.circle(0, 0, this.STAR_RADIUS * 1.4); // Smaller glow to avoid overlap with first orbit (90)
+    this.glowGraphic.fill({ color, alpha: 0.3 }); // Slightly more visible but smaller
     this.addChild(this.glowGraphic);
 
     // Star Body

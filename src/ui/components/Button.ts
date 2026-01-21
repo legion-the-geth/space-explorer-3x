@@ -75,4 +75,8 @@ export class Button extends Container {
   public set text(value: string) {
     this.buttonText.text = value;
   }
+
+  public get text(): string {
+    return this.buttonText.text;
+  }
 }

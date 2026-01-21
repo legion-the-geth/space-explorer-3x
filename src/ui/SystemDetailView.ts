@@ -62,15 +62,24 @@ export class SystemDetailView {
     const systemState = this.getSystemState(system.id);
     const connectedSystems = this.getConnectedSystemNames(system.id);
 
+    // Layout configuration
+    const panelWidth = 350;
+    const padding = 20;
+
     // 1. Create Info Panel (UI Layer)
-    // Created first so it can be referenced by visualizer callbacks
+    // Docked to the RIGHT side
     const infoPanel = new SystemInfoPanel(
       system,
       systemState,
       connectedSystems,
       (targetId) => this.onShowSystemDetails(targetId)
     );
-    infoPanel.position.set(this.screenWidth / 2 + 100, this.screenHeight / 2 - 200);
+    // Align top-right
+    infoPanel.position.set(this.screenWidth - panelWidth - padding, padding);
+
+    // Stretch height to fit screen minus padding
+    const panelHeight = this.screenHeight - (padding * 2);
+    infoPanel.resize(panelWidth, panelHeight);
 
     // 2. Create Visualizer with callbacks (Background Layer)
     const visualizer = new SystemVisualizer({
@@ -78,14 +87,21 @@ export class SystemDetailView {
       onPlanetClick: (planet) => infoPanel.showPlanetDetails(planet),
       onBackgroundClick: () => infoPanel.showSystemInfo(),
     });
-    visualizer.position.set(this.screenWidth / 2 - 200, this.screenHeight / 2);
 
-    // 3. Add to container (Order matches Z-Index: Background first, UI second)
+    // Center in the REMAINING space (Left side)
+    const visualizerAreaWidth = this.screenWidth - panelWidth - (padding * 2);
+    visualizer.position.set(visualizerAreaWidth / 2, this.screenHeight / 2);
+
+    // 3. Add to container
     this.container.addChild(visualizer);
     this.container.addChild(infoPanel);
 
-    // 3. Render Buttons (Navigation, Scan, Jump)
-    // Back Button
+    // 4. Render Buttons (Navigation, Scan, Jump)
+
+    // Calculate button positions centered in the visualizer area
+    const buttonCenterX = visualizerAreaWidth / 2;
+
+    // Back Button (Bottom-Left)
     const backButton = new Button({
       text: '← Back to Galaxy',
       width: 150,
@@ -97,7 +113,7 @@ export class SystemDetailView {
 
     const isAtSystem = system.id === this.currentPlayerSystemId;
 
-    // Scan Button (only if not scanned AND player is at this system)
+    // Scan Button
     if (systemState !== SystemDiscoveryState.SCANNED && isAtSystem) {
       const scanButton = new Button({
         text: '🔬 Scan System',
@@ -107,11 +123,11 @@ export class SystemDetailView {
         fontSize: THEME.typography.size.medium,
         onPress: () => this.onScanSystem(system.id),
       });
-      scanButton.position.set(this.screenWidth / 2 - 210, 30);
+      scanButton.position.set(buttonCenterX - 100, 30);
       this.container.addChild(scanButton);
     }
 
-    // Jump Button (only if jumpable)
+    // Jump Button
     if (this.isSystemJumpable(system.id)) {
       const jumpButton = new Button({
         text: '🚀 Jump to System',
@@ -122,10 +138,21 @@ export class SystemDetailView {
         onPress: () => this.onJumpToSystem(system.id),
       });
 
-      // Position depends on whether Scan button is present
       const showScan = systemState !== SystemDiscoveryState.SCANNED && isAtSystem;
-      const xPos = showScan ? this.screenWidth / 2 + 10 : this.screenWidth / 2 - 100;
-      jumpButton.position.set(xPos, 30);
+      // If scan button exists, offset jump button, otherwise center
+      // If both buttons present, shift scan button left (handled by re-positioning logic below if needed, 
+      // but simpler: Scan centered-left, Jump centered-right)
+
+      if (showScan) {
+        // Reset scan button position for dual display
+        const scanBtn = this.container.children.find(c => c instanceof Button && c.text.includes('Scan')) as Button; // naive find
+        if (scanBtn) scanBtn.position.set(buttonCenterX - 210, 30);
+
+        jumpButton.position.set(buttonCenterX + 10, 30);
+      } else {
+        jumpButton.position.set(buttonCenterX - 100, 30);
+      }
+
       this.container.addChild(jumpButton);
     }
   }
