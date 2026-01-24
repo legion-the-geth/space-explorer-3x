@@ -149,6 +149,6 @@ TBD
 
 ---
 
-**Status** : 🟢 MVP en développement (FEAT-001 ~90% complété)
+**Status** : 🟢 MVP en développement
 **Version** : 0.1.0 (alpha)
 **Dernière mise à jour** : 2026-01-15

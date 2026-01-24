@@ -10,6 +10,7 @@
 
 > **Tâches et backlog** :
 > Voir [TODO.md](./TODO.md)
+> Voir [SPECS/READY](./SPECS/READY)
 
 > **Historique des versions** :
 > Voir [CHANGELOG.md](./CHANGELOG.md)

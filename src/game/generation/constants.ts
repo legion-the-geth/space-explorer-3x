@@ -129,3 +129,25 @@ export const STAR_TYPE_NAMES = {
   K: 'Orange Dwarf',
   M: 'Red Dwarf',
 } as const;
+
+// ========== PLANET VISUALS ==========
+
+import { PlanetType } from '@game/Planet';
+
+export const PLANET_TYPE_COLORS: Record<PlanetType, number> = {
+  'Rocky': 0x8B7355,      // Brownish
+  'Gas Giant': 0xE6B333,  // Gold/Yellow
+  'Ice': 0xA5F2F3,        // Light Blue
+  'Desert': 0xE6A15C,     // Orange sand
+  'Ocean': 0x2A6FDB,      // Deep Blue
+  'Lava': 0xFF4500,       // Red Orange
+};
+
+export const PLANET_TYPE_SIZES: Record<PlanetType, number> = {
+  'Rocky': 6,
+  'Gas Giant': 14,
+  'Ice': 7,
+  'Desert': 6,
+  'Ocean': 7,
+  'Lava': 6,
+};

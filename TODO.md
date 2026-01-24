@@ -12,7 +12,7 @@
 - [ ] **[FEAT]** Génération de planètes dans les systèmes ~1d #procgen @game
   Ajouter des planètes aux systèmes stellaires existants.
   - [ ] Générateur de planètes (types, tailles, orbites)
-  - [ ] Affichage des orbites dans la vue système
+  - [x] Affichage des orbites dans la vue système
   - [ ] Propriétés planétaires (composition, atmosphère, température)
   - [ ] Zone habitable calculée selon l'étoile
 
@@ -69,7 +69,7 @@
   - [ ] Validation du format importé
 
 ### Phase 6 : Polish MVP
-- [ ] **[UI]** Interface d'information sur les planètes ~4h #ui @frontend
+- [x] **[UI]** Interface d'information sur les planètes ~4h #ui @frontend
   Panel latéral ou overlay avec détails des planètes découvertes.
 
 - [ ] **[UI]** HUD basique (ressources, position) ~2h #ui @frontend
@@ -132,6 +132,10 @@
   Afficher le nom du système au survol sans cliquer.
 
 ## ✅ Terminé
+
+- [x] **[FEAT]** Vue orbitale et détails système ~4h #ui @frontend [FEAT-002]
+  **Terminé le** : 2026-01-21
+  Transformation de la vue système avec visualisation des orbites et des planètes (cercles/disques). Rendu symbolique. Interaction (click/hover) sur les planètes pour afficher les détails dans le panneau latéral.
 
 - [x] **[FEAT]** Action "Jump to System" ~2h #gameplay @fullstack [FEAT-001-5]
   **Terminé le** : 2026-01-16
